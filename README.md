@@ -23,3 +23,8 @@ MySQLドライバとMyBatisの追加
 学生の基本情報を削除  
 ![学生の基本情報を削除](https://github.com/user-attachments/assets/88bf833e-1a32-4079-b2fc-50f212915a26)  
 ![学生の基本情報を削除テーブル](https://github.com/user-attachments/assets/f479d7c9-63d9-4c30-aa7c-4eff18fa20c1)  
+
+登録された学生全員の基本情報を表示  
+![テーブルの全件表示](https://github.com/user-attachments/assets/e3290cda-f6b9-479b-84b2-fd368a9b12ff)  
+
+  
