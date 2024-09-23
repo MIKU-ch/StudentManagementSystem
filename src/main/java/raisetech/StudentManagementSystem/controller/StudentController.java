@@ -2,6 +2,7 @@ package raisetech.StudentManagementSystem.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,16 +37,11 @@ public class StudentController {
     List<StudentDetail> studentDetails = new ArrayList<>();
 
     // 学生リストと学生コースリストを結合して StudentDetail オブジェクトを作成
-    for (int i = 0; i < students.size(); i++) {
-      Student student = students.get(i);
-
-      List<StudentsCourses> studentCourseList = new ArrayList<>();
-      for (int j = 0; j < studentsCourses.size(); j++) {
-        StudentsCourses course = studentsCourses.get(j);
-        if (course.getStudentId().equals(student.getId())) {
-          studentCourseList.add(course);
-        }
-      }
+    for (Student student : students) {
+      // 該当する学生のコースをフィルタリング
+      List<StudentsCourses> studentCourseList = studentsCourses.stream()
+          .filter(course -> course.getStudentId().equals(student.getId())) // idはString型なのでそのまま比較
+          .collect(Collectors.toList());
 
       // 学生情報とコース情報を StudentDetail にセット
       StudentDetail studentDetail = new StudentDetail();
