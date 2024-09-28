@@ -1,68 +1,58 @@
 package raisetech.StudentManagementSystem.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @RestController
+@RequestMapping("/students")
 public class StudentController {
 
   private final StudentService service;
+  private final StudentConverter studentConverter;
 
   @Autowired
-  public StudentController(StudentService service) {
+  public StudentController(StudentService service, StudentConverter studentConverter) {
     this.service = service;
-  }
-
-  // 全ての学生を表示
-  @GetMapping("/students")
-  public List<Student> getAllStudents() {
-    return service.searchStudentList();
+    this.studentConverter = studentConverter;
   }
 
   // コースを全件表示
   @GetMapping("/studentsCourseList")
   public List<StudentDetail> getStudentsList() {
-    // コースリストを取得
-    List<StudentsCourses> studentsCourses = service.searchStudentsCourseList();
+    List<StudentsCourses> studentsCourses = service.searchStudentsCourseList(); // コースリストを取得
     List<Student> students = service.searchStudentList(); // 全ての学生を取得
 
-    List<StudentDetail> studentDetails = new ArrayList<>();
-
-    // 学生リストと学生コースリストを結合して StudentDetail オブジェクトを作成
-    for (Student student : students) {
-      // 該当する学生のコースをフィルタリング
-      List<StudentsCourses> studentCourseList = studentsCourses.stream()
-          .filter(course -> course.getStudentId().equals(student.getId())) // idはString型なのでそのまま比較
-          .collect(Collectors.toList());
-
-      // 学生情報とコース情報を StudentDetail にセット
-      StudentDetail studentDetail = new StudentDetail();
-      studentDetail.setStudent(student); // 学生情報をセット
-      studentDetail.setStudentsCourses(studentCourseList); // 学生のコース情報をセット
-
-      studentDetails.add(studentDetail); // リストに追加
-    }
-
-    return studentDetails;
+    // StudentConverter を使って StudentDetail のリストを取得
+    return studentConverter.convertToStudentDetailList(students, studentsCourses);
   }
 
-  // 30代の学生のみを表示
-  @GetMapping("/students/30s")
-  public List<Student> getStudentsInTheir30s() {
-    return service.getStudents30s();
+  // 備考（remark）を更新するエンドポイント
+  @PatchMapping("/{id}/remark")
+  public ResponseEntity<String> updateStudentRemark(
+      @PathVariable int id,
+      @RequestBody String newRemark) {
+    service.updateStudentRemark(id, newRemark);
+    return ResponseEntity.ok("備考欄に情報が追加されました。");
   }
 
-  // Javaコースを受講している学生のみを表示
-  @GetMapping("/students/java")
-  public List<Student> getStudentsInJavaCourse() {
-    return service.getStudentsInJavaCourse();
+  // 論理削除（isDeleted）を更新するエンドポイント
+  @PatchMapping("/{id}/delete")
+  public ResponseEntity<String> updateStudentDeletionStatus(
+      @PathVariable int id,
+      @RequestBody boolean isDeleted) {
+    service.updateStudentDeletionStatus(id, isDeleted);
+    return ResponseEntity.ok("論理削除が成功しました。");
   }
 }
