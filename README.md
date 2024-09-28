@@ -1,23 +1,12 @@
-# 実装内容
-1. 依存性注入のリファクタリング
-- @Autowiredによるフィールドインジェクションをコンストラクタインジェクションに変更。
-- パッケージ構成を変更し、サービスクラスとコントローラークラスを分割・作成。
-2. 受講情報の取得
-- 30代の受講情報を抽出し、リストをコントローラーで返す処理を実装。
-- Javaコース受講者の受講生情報を取得し、リストをコントローラーで返す処理を実装。
+## 概要
+- StudentConverterクラスを追加し、学生データの変換機能を実装しました。
+- remarkフィールドとisDeletedフィールドを追加し、学生情報に対するコメントの管理や削除フラグの実装を行いました。
 
-# 実行結果
-## テーブル情報
-- studentsテーブル( id は INT AUTO_INCREMENT を使用しましたが、id:1の人を練習でDELETしたため id:2 から始まっています。)
-![受講生情報テーブル](https://github.com/user-attachments/assets/ceed5cd4-6de1-4dc6-813d-0e4b68d0559f)  
-- students_courses テーブル
-![受講コース情報テーブル](https://github.com/user-attachments/assets/15990688-225a-4224-82b3-d3ec7657cd71)  
-## コマンドでstudents全員の情報とすべてのコース情報が取れていることを確認 
-- students
-![students](https://github.com/user-attachments/assets/3b70d160-135e-464a-96b8-e240250ec32f) 
-- students_courses 
-![students_courses](https://github.com/user-attachments/assets/3902abf5-7e04-4428-a4ad-a932cbd17a74) 
-- 30代の受講情報を抽出し、リストをコントローラーで返す処理 
-![30代](https://github.com/user-attachments/assets/7db8116d-13db-4bd7-9ad7-bd478138bdb0) 
-- Javaコース受講者の受講生情報を取得し、リストをコントローラーで返す処理 
-![Java](https://github.com/user-attachments/assets/465d5ec2-411c-4df3-9c1a-1df4bafdb4e9)
+## 実行結果
+- remarkフィールドに情報を追加 
+![備考欄](https://github.com/user-attachments/assets/35651f63-3f6e-4845-a518-f72128921185)
+![備考欄に優秀な学生追加](https://github.com/user-attachments/assets/84d7885b-c171-41a3-80d3-8900c52f19b2)
+- isDeletedフィールドに情報を追加 
+![論理削除](https://github.com/user-attachments/assets/872d88e6-1e96-460b-8118-ca0e0c5c53e4) 
+-  情報が追加されたListの表示
+![studentsCourseList提出](https://github.com/user-attachments/assets/b9901f65-bd5d-4b49-a557-2b7114614792)
