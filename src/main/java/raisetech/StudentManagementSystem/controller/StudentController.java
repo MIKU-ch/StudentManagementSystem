@@ -28,31 +28,26 @@ public class StudentController {
     this.studentConverter = studentConverter;
   }
 
-  // コースを全件表示
   @GetMapping("/studentsCourseList")
   public List<StudentDetail> getStudentsList() {
-    List<StudentsCourses> studentsCourses = service.searchStudentsCourseList(); // コースリストを取得
-    List<Student> students = service.searchStudentList(); // 全ての学生を取得
-
-    // StudentConverter を使って StudentDetail のリストを取得
+    List<StudentsCourses> studentsCourses = service.searchStudentsCourseList();
+    List<Student> students = service.searchStudentList();
     return studentConverter.convertToStudentDetailList(students, studentsCourses);
   }
 
-  // 備考（remark）を更新するエンドポイント
-  @PatchMapping("/{id}/remark")
+  @PatchMapping("/{id}/remarks")
   public ResponseEntity<String> updateStudentRemark(
       @PathVariable int id,
       @RequestBody String newRemark) {
     service.updateStudentRemark(id, newRemark);
-    return ResponseEntity.ok("備考欄に情報が追加されました。");
+    return ResponseEntity.ok("学生の備考が更新されました。");
   }
 
-  // 論理削除（isDeleted）を更新するエンドポイント
-  @PatchMapping("/{id}/delete")
+  @PatchMapping("/{id}/deletion-status")
   public ResponseEntity<String> updateStudentDeletionStatus(
       @PathVariable int id,
       @RequestBody boolean isDeleted) {
-    service.updateStudentDeletionStatus(id, isDeleted);
-    return ResponseEntity.ok("論理削除が成功しました。");
+    service.updateStudentIsDeleted(id, isDeleted);
+    return ResponseEntity.ok("受講生情報の削除が成功しました。");
   }
 }

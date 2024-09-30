@@ -37,7 +37,7 @@ public class StudentService {
     }
   }
 
-  public void updateStudentDeletionStatus(int id, boolean isDeleted) {
+  public void updateStudentIsDeleted(int id, boolean isDeleted) {
     Student student = repository.findById(id);
     if (student != null) {
       student.setDeleted(isDeleted);
