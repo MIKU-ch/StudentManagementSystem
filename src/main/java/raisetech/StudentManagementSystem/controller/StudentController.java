@@ -35,7 +35,7 @@ public class StudentController {
     return studentConverter.convertToStudentDetailList(students, studentsCourses);
   }
 
-  @PatchMapping("/{id}/remarks")
+  @PatchMapping("/{id}/remark")
   public ResponseEntity<String> updateStudentRemark(
       @PathVariable int id,
       @RequestBody String newRemark) {
@@ -43,7 +43,7 @@ public class StudentController {
     return ResponseEntity.ok("学生の備考が更新されました。");
   }
 
-  @PatchMapping("/{id}/deletion-status")
+  @PatchMapping("/{id}/delete")
   public ResponseEntity<String> updateStudentDeletionStatus(
       @PathVariable int id,
       @RequestBody boolean isDeleted) {
