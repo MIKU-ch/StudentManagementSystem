@@ -1,6 +1,5 @@
 package raisetech.StudentManagementSystem.data;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +18,4 @@ public class Student {
   private String gender;
   private String remark;
   private boolean isDeleted;
-  private List<StudentsCourses> courses;
 }

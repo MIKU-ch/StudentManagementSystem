@@ -1,49 +1,64 @@
 package raisetech.StudentManagementSystem.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
+import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.repository.StudentRepository;
 
 @Service
 public class StudentService {
 
-  private final StudentRepository repository;
+  private final StudentRepository studentRepository;
 
-  @Autowired
-  public StudentService(StudentRepository repository) {
-    this.repository = repository;
+  public StudentService(StudentRepository studentRepository) {
+    this.studentRepository = studentRepository;
   }
 
-  // 全ての学生を取得する
-  public List<Student> searchStudentList() {
-    return repository.search();
-  }
+  // 全学生とそのコース情報を結合して取得
+  public List<StudentDetail> getStudentsWithCourses() {
+    List<Student> students = studentRepository.searchStudent();
+    List<StudentsCourses> courses = studentRepository.searchStudentsCourses();
 
-  // コースを全件取得する
-  public List<StudentsCourses> searchStudentsCourseList() {
-    return repository.searchStudentsCourses();
-  }
+    // 学生IDをキーに、StudentDetailを構築する
+    Map<Integer, StudentDetail> studentDetailMap = new HashMap<>();
 
-  public void updateStudentRemark(int id, String newRemark) {
-    Student student = repository.findById(id);
-    if (student != null) {
-      student.setRemark(newRemark);
-      repository.updateStudent(student);
-    } else {
-      throw new RuntimeException("生徒が見つかりませんでした。");
+    // まず学生情報をセット
+    for (Student student : students) {
+      StudentDetail studentDetail = new StudentDetail();
+      studentDetail.setStudent(student);
+      studentDetail.setStudentsCourses(new ArrayList<>()); // 空のコースリストをセット
+      studentDetailMap.put(student.getId(), studentDetail);
     }
+
+    // コース情報を対応する学生にセット
+    for (StudentsCourses course : courses) {
+      StudentDetail studentDetail = studentDetailMap.get(course.getStudentId());
+      if (studentDetail != null) {
+        studentDetail.getStudentsCourses().add(course);
+      }
+    }
+
+    return new ArrayList<>(studentDetailMap.values());
   }
 
-  public void updateStudentIsDeleted(int id, boolean isDeleted) {
-    Student student = repository.findById(id);
+  // 学生の備考を更新するメソッド
+  @Transactional
+  public void updateStudentRemark(int id, String newRemark) {
+    // 学生を取得
+    Student student = studentRepository.findById(id);
     if (student != null) {
-      student.setDeleted(isDeleted);
-      repository.updateStudent(student);
+      // 備考を更新
+      student.setRemark(newRemark);
+      // データベースを更新
+      studentRepository.updateStudent(student);
     } else {
-      throw new RuntimeException("生徒が見つかりませんでした。");
+      throw new RuntimeException("学生が見つかりません: ID = " + id);
     }
   }
 }
