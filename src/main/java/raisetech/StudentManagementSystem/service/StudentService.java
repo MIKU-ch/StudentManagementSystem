@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
@@ -45,20 +44,5 @@ public class StudentService {
     }
 
     return new ArrayList<>(studentDetailMap.values());
-  }
-
-  // 学生の備考を更新するメソッド
-  @Transactional
-  public void updateStudentRemark(int id, String newRemark) {
-    // 学生を取得
-    Student student = studentRepository.findById(id);
-    if (student != null) {
-      // 備考を更新
-      student.setRemark(newRemark);
-      // データベースを更新
-      studentRepository.updateStudent(student);
-    } else {
-      throw new RuntimeException("学生が見つかりません: ID = " + id);
-    }
   }
 }
