@@ -8,7 +8,6 @@ import raisetech.StudentManagementSystem.repository.StudentRepository;
 
 public class Application {
 
-
   private StudentRepository repository;
 
   public static void main(String[] args) {

@@ -1,12 +1,26 @@
 ## 概要
-- StudentConverterクラスを追加し、学生データの変換機能を実装しました。
-- remarkフィールドとisDeletedフィールドを追加し、学生情報に対するコメントの管理や削除フラグの実装を行いました。
+Spring BootアプリケーションにThymeleafを導入し、フロントエンドを実装しました。また、既存のStudentControllerとStudentServiceをリファクタリングし、責務の分離とコードの整理を行いました。以下の変更が含まれます。
 
-## 実行結果
-- remarkフィールドに情報を追加 
-![備考欄](https://github.com/user-attachments/assets/35651f63-3f6e-4845-a518-f72128921185)
-![備考欄に優秀な学生追加](https://github.com/user-attachments/assets/84d7885b-c171-41a3-80d3-8900c52f19b2)
-- isDeletedフィールドに情報を追加 
-![論理削除](https://github.com/user-attachments/assets/872d88e6-1e96-460b-8118-ca0e0c5c53e4) 
--  情報が追加されたListの表示
-![studentsCourseList提出](https://github.com/user-attachments/assets/b9901f65-bd5d-4b49-a557-2b7114614792)
+## 変更点
+
+1. Thymeleafの導入
+   - build.gradleにThymeleaf依存関係を追加しました。
+   - 新しいHTMLテンプレート (studentList.html) を追加し、受講生の情報を表示します。
+
+2. StudentControllerのリファクタリング
+   - RestControllerからControllerに変更しました。
+   - Modelを使って、Thymeleafテンプレートにデータを渡すようにしました。
+   - @PatchMappingなどのエンドポイントを削除し、単純化しました。
+
+3. StudentServiceのリファクタリング
+   - 学生とコース情報を結合して返すメソッドを追加しました (getStudentsWithCourses)。
+
+4. StudentRepositoryのメソッド名変更
+   - より明確な命名規則に従い、searchメソッドをsearchStudentに変更しました。
+
+5. HTMLテンプレートの追加
+   - studentList.html: Thymeleafで動的に受講生情報を表示します。
+
+## 動作確認
+- ブラウザから/studentsCourseListエンドポイントにアクセスすることで、受講生の一覧が正しく表示されることを確認しました。
+![スクリーンショット 2024-10-12 123059](https://github.com/user-attachments/assets/d35e0457-5706-403b-8177-fe958ec8235e)
