@@ -42,7 +42,18 @@ public class StudentService {
         studentDetail.getStudentsCourses().add(course);
       }
     }
-
     return new ArrayList<>(studentDetailMap.values());
   }
+
+  public void saveStudentDetail(StudentDetail studentDetail) {
+    // まず、学生情報を保存
+    studentRepository.save(studentDetail.getStudent());
+
+    // 保存した学生IDを使ってコース情報を保存
+    for (StudentsCourses course : studentDetail.getStudentsCourses()) {
+      course.setStudentId(studentDetail.getStudent().getId()); // 新しく作成した学生IDをコースにセット
+      studentRepository.saveCourse(course);
+    }
+  }
+
 }

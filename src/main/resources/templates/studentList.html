@@ -25,15 +25,15 @@
     <td th:text="${studentDetail.student.id}">1</td>
     <td th:text="${studentDetail.student.name}">室伏広治</td>
     <td th:text="${studentDetail.student.kanaName}">むろふし こうじ</td>
-    <td th:text="${studentDetail.student.nickname}">Sho</td>
-    <td th:text="${studentDetail.student.email}">shohei.otani@example.com</td>
-    <td th:text="${studentDetail.student.region}">アメリカ</td>
+    <td th:text="${studentDetail.student.nickname}">Koji</td>
+    <td th:text="${studentDetail.student.email}">koji.murobushi@example.com</td>
+    <td th:text="${studentDetail.student.region}">日本</td>
     <td th:text="${studentDetail.student.gender}">男</td>
-    <td th:text="${studentDetail.student.remark}">学生</td>
+    <td th:text="${studentDetail.student.remark}">NULL</td>
     <td>
       <ul>
         <li th:each="course : ${studentDetail.studentsCourses}" th:text="${course.courseName}">
-          AWS
+          Java
         </li>
       </ul>
     </td>
