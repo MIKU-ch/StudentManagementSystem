@@ -47,7 +47,7 @@ public class StudentService {
 
   public void saveStudentDetail(StudentDetail studentDetail) {
     // まず、学生情報を保存
-    studentRepository.save(studentDetail.getStudent());
+    studentRepository.saveStudent(studentDetail.getStudent());
 
     // 保存した学生IDを使ってコース情報を保存
     for (StudentsCourses course : studentDetail.getStudentsCourses()) {
