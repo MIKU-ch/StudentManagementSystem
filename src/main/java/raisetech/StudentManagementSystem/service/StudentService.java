@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
@@ -15,14 +17,25 @@ public class StudentService {
 
   private final StudentRepository studentRepository;
 
+  @Autowired
   public StudentService(StudentRepository studentRepository) {
     this.studentRepository = studentRepository;
+  }
+
+  public StudentDetail searchStudentById(int id) {
+    Student student = studentRepository.searchStudentById(id);
+    List<StudentsCourses> studentsCourses = studentRepository.searchStudentsCourses(
+        student.getId());
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setStudentsCourses(studentsCourses);
+    return studentDetail;
   }
 
   // 全学生とそのコース情報を結合して取得
   public List<StudentDetail> getStudentsWithCourses() {
     List<Student> students = studentRepository.searchStudent();
-    List<StudentsCourses> courses = studentRepository.searchStudentsCourses();
+    List<StudentsCourses> courses = studentRepository.searchStudentsCoursesList();
 
     // 学生IDをキーに、StudentDetailを構築する
     Map<Integer, StudentDetail> studentDetailMap = new HashMap<>();
@@ -45,15 +58,34 @@ public class StudentService {
     return new ArrayList<>(studentDetailMap.values());
   }
 
+  @Transactional
   public void saveStudentDetail(StudentDetail studentDetail) {
-    // まず、学生情報を保存
+    // 学生情報を保存し、生成されたIDを取得
     studentRepository.saveStudent(studentDetail.getStudent());
 
     // 保存した学生IDを使ってコース情報を保存
     for (StudentsCourses course : studentDetail.getStudentsCourses()) {
-      course.setStudentId(studentDetail.getStudent().getId()); // 新しく作成した学生IDをコースにセット
-      studentRepository.saveCourse(course);
+      // student.getId()がnullでないか確認
+      if (studentDetail.getStudent().getId() != null) {
+        course.setStudentId(studentDetail.getStudent().getId()); // 新しく作成した学生IDをコースにセット
+        studentRepository.saveCourse(course);
+      } else {
+        throw new RuntimeException("Student ID is null. The course cannot be saved.");
+      }
     }
   }
 
+  @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    // まず、学生情報を保存
+    studentRepository.updateStudent(studentDetail.getStudent());
+
+    for (StudentsCourses course : studentDetail.getStudentsCourses()) {
+      if (course.getId() == null) {
+        studentRepository.saveCourse(course);  // 新規コースを挿入
+      } else {
+        studentRepository.updateCourse(course);  // 既存コースを更新
+      }
+    }
+  }
 }

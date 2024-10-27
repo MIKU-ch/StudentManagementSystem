@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>受講生登録</title>
+  <title>受講生詳細</title>
 </head>
 <body>
-<h1>受講生登録</h1>
-<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+<h1>受講生詳細</h1>
+<form th:action="@{/updateStudent}" th:object="${studentDetail}" method="post">
+  <div>
+    <label for="id">ID</label>
+    <input type="text" id="id" th:field="*{student.id}" required/>
+  </div>
   <div>
     <label for="name">名前</label>
     <input type="text" id="name" th:field="*{student.name}" required/>
-    <div th:if="${#fields.hasErrors('student.name')}" th:errors="*{student.name}"
-         style="color: red;"></div>
   </div>
   <div>
     <label for="kanaName">かな</label>
@@ -46,11 +48,15 @@
     <input type="text" id="remark" th:field="*{student.remark}"/>
   </div>
 
-  <!-- courses section -->
   <h2>コース情報</h2>
-  <div>
+  <div th:each="course, stat : *{studentsCourses}">
+    <!-- 受講コースID -->
+    <label for="id" th:for="studentCourse__${stat.index}__id">受講コースID: </label>
+    <input type="text" id="id" th:id="studentCourse__${stat.index}__id"
+           th:field="*{studentsCourses[__${stat.index}__].id}" readonly/>
+
     <label for="courseName">コース名</label>
-    <select id="courseName" th:field="*{studentsCourses[0].courseName}" required>
+    <select id="courseName" th:field="*{studentsCourses[__${stat.index}__].courseName}" required>
       <option value="" disabled selected>選択してください</option>
       <option value="AWS">AWS</option>
       <option value="Java">Java</option>
@@ -58,20 +64,22 @@
       <option value="デザイン">デザイン</option>
       <option value="マーケティング">マーケティング</option>
     </select>
-  </div>
-  <div>
+
+    <!-- 開始日 -->
     <label for="startDateAt">開始日</label>
-    <input type="date" id="startDateAt" th:field="*{studentsCourses[0].startDateAt}"
+    <input type="date" id="startDateAt" th:field="*{studentsCourses[__${stat.index}__].startDateAt}"
            required/>
-  </div>
-  <div>
+
+    <!-- 終了日 -->
     <label for="endDateAt">終了日</label>
-    <input type="date" id="endDateAt" th:field="*{studentsCourses[0].endDateAt}"/>
+    <input type="date" id="endDateAt" th:field="*{studentsCourses[__${stat.index}__].endDateAt}"/>
+
   </div>
 
   <div>
-    <button type="submit">登録</button>
+    <button type="submit">更新</button>
   </div>
+
 </form>
 </body>
 </html>
