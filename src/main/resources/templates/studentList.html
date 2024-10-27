@@ -35,8 +35,9 @@
     <td th:text="${studentDetail.student.remark}">NULL</td>
     <td>
       <ul>
-        <li th:each="course : ${studentDetail.studentsCourses}" th:text="${course.courseName}">
-          Java
+        <li th:each="course : ${studentDetail.studentsCourses}">
+          <span th:text="${course.courseName}"></span> - <span
+            th:text="${course.startDateAt}"></span>
         </li>
       </ul>
     </td>

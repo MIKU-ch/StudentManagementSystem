@@ -63,11 +63,11 @@ public class StudentService {
     // 学生情報を保存し、生成されたIDを取得
     studentRepository.saveStudent(studentDetail.getStudent());
 
-    // 保存した学生IDを使ってコース情報を保存
+    // 学生IDが生成された後に各コースにIDを設定
     for (StudentsCourses course : studentDetail.getStudentsCourses()) {
-      // student.getId()がnullでないか確認
       if (studentDetail.getStudent().getId() != null) {
-        course.setStudentId(studentDetail.getStudent().getId()); // 新しく作成した学生IDをコースにセット
+        // addCourseメソッドを使って自動的にstudentIdを設定
+        studentDetail.getStudent().addCourse(course);
         studentRepository.saveCourse(course);
       } else {
         throw new RuntimeException("Student ID is null. The course cannot be saved.");
@@ -81,6 +81,9 @@ public class StudentService {
     studentRepository.updateStudent(studentDetail.getStudent());
 
     for (StudentsCourses course : studentDetail.getStudentsCourses()) {
+      // addCourseメソッドを使用して、studentIdを設定
+      studentDetail.getStudent().addCourse(course);
+
       if (course.getId() == null) {
         studentRepository.saveCourse(course);  // 新規コースを挿入
       } else {
@@ -88,4 +91,5 @@ public class StudentService {
       }
     }
   }
+
 }

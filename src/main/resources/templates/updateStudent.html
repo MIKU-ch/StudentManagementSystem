@@ -1,7 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+  <meta charset="UTF-8">
   <title>受講生詳細</title>
+  <script>
+    function addCourse() {
+      const coursesContainer = document.getElementById('coursesContainer');
+      const courseIndex = coursesContainer.children.length; // 現在のコース数を取得
+      const newCourseDiv = document.createElement('div');
+
+      newCourseDiv.innerHTML = `
+        <label for="studentCourse__${courseIndex}__id">受講コースID: </label>
+        <input type="text" id="studentCourse__${courseIndex}__id" name="studentsCourses[${courseIndex}].id" readonly/>
+
+        <label for="courseName__${courseIndex}">コース名</label>
+        <select id="courseName__${courseIndex}" name="studentsCourses[${courseIndex}].courseName" required>
+          <option value="" disabled selected>選択してください</option>
+          <option value="AWS">AWS</option>
+          <option value="Java">Java</option>
+          <option value="WordPress">WordPress</option>
+          <option value="デザイン">デザイン</option>
+          <option value="マーケティング">マーケティング</option>
+        </select>
+
+        <label for="startDateAt__${courseIndex}">開始日</label>
+        <input type="date" id="startDateAt__${courseIndex}" name="studentsCourses[${courseIndex}].startDateAt" required/>
+
+        <label for="endDateAt__${courseIndex}">終了日</label>
+        <input type="date" id="endDateAt__${courseIndex}" name="studentsCourses[${courseIndex}].endDateAt"/>
+      `;
+
+      coursesContainer.appendChild(newCourseDiv);
+    }
+  </script>
 </head>
 <body>
 <h1>受講生詳細</h1>
@@ -49,31 +80,35 @@
   </div>
 
   <h2>コース情報</h2>
-  <div th:each="course, stat : *{studentsCourses}">
-    <!-- 受講コースID -->
-    <label for="id" th:for="studentCourse__${stat.index}__id">受講コースID: </label>
-    <input type="text" id="id" th:id="studentCourse__${stat.index}__id"
-           th:field="*{studentsCourses[__${stat.index}__].id}" readonly/>
+  <div id="coursesContainer">
+    <div th:each="course, stat : *{studentsCourses}">
+      <label for="studentCourse__${stat.index}__id">受講コースID: </label>
+      <input type="text" id="studentCourse__${stat.index}__id"
+             th:field="*{studentsCourses[__${stat.index}__].id}" readonly/>
 
-    <label for="courseName">コース名</label>
-    <select id="courseName" th:field="*{studentsCourses[__${stat.index}__].courseName}" required>
-      <option value="" disabled selected>選択してください</option>
-      <option value="AWS">AWS</option>
-      <option value="Java">Java</option>
-      <option value="WordPress">WordPress</option>
-      <option value="デザイン">デザイン</option>
-      <option value="マーケティング">マーケティング</option>
-    </select>
+      <label for="courseName__${stat.index}">コース名</label>
+      <select id="courseName__${stat.index}"
+              th:field="*{studentsCourses[__${stat.index}__].courseName}" required>
+        <option value="" disabled selected>選択してください</option>
+        <option value="AWS">AWS</option>
+        <option value="Java">Java</option>
+        <option value="WordPress">WordPress</option>
+        <option value="デザイン">デザイン</option>
+        <option value="マーケティング">マーケティング</option>
+      </select>
 
-    <!-- 開始日 -->
-    <label for="startDateAt">開始日</label>
-    <input type="date" id="startDateAt" th:field="*{studentsCourses[__${stat.index}__].startDateAt}"
-           required/>
+      <label for="startDateAt__${stat.index}">開始日</label>
+      <input type="date" id="startDateAt__${stat.index}"
+             th:field="*{studentsCourses[__${stat.index}__].startDateAt}" required/>
 
-    <!-- 終了日 -->
-    <label for="endDateAt">終了日</label>
-    <input type="date" id="endDateAt" th:field="*{studentsCourses[__${stat.index}__].endDateAt}"/>
+      <label for="endDateAt__${stat.index}">終了日</label>
+      <input type="date" id="endDateAt__${stat.index}"
+             th:field="*{studentsCourses[__${stat.index}__].endDateAt}"/>
+    </div>
+  </div>
 
+  <div>
+    <button type="button" onclick="addCourse()">コース追加</button>
   </div>
 
   <div>
