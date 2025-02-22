@@ -25,7 +25,7 @@ public class StudentConverter {
       // StudentDetail を生成
       StudentDetail studentDetail = new StudentDetail();
       studentDetail.setStudent(student);  // 学生情報をセット
-      studentDetail.setStudentsCourses(studentCourseList);  // 学生に関連するコースをセット
+      studentDetail.setCourses(studentCourseList);  // 学生に関連するコースをセット
 
       // StudentDetail をリストに追加
       studentDetails.add(studentDetail);

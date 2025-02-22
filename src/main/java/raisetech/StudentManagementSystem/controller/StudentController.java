@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @Controller
-@RequestMapping("/students")
 public class StudentController {
 
   private final StudentService service;
@@ -33,5 +31,4 @@ public class StudentController {
         converter.convertToStudentDetailList(students, studentsCourses));
     return "studentList";
   }
-  
 }

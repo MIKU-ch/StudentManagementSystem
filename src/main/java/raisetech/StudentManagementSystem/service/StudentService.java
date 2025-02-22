@@ -27,23 +27,5 @@ public class StudentService {
     return repository.searchStudentsCourses();
   }
 
-  public void updateStudentRemark(int id, String newRemark) {
-    Student student = repository.findById(id);
-    if (student != null) {
-      student.setRemark(newRemark);
-      repository.updateStudent(student);
-    } else {
-      throw new RuntimeException("生徒が見つかりませんでした。");
-    }
-  }
 
-  public void updateStudentIsDeleted(int id, boolean isDeleted) {
-    Student student = repository.findById(id);
-    if (student != null) {
-      student.setDeleted(isDeleted);
-      repository.updateStudent(student);
-    } else {
-      throw new RuntimeException("生徒が見つかりませんでした。");
-    }
-  }
 }
