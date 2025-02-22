@@ -1,5 +1,3 @@
-#
-
 ## 概要
 
 Thymeleafを利用して受講生情報を一覧表示できるように変更しました。
@@ -34,5 +32,4 @@ Thymeleafを利用して受講生情報を一覧表示できるように変更�
   でアクセスできます。
 
 ## テーブル情報
-
-![テーブル情報.png](../../Users/shiji/OneDrive/%E7%94%BB%E5%83%8F/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88/%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E6%83%85%E5%A0%B1.png)
+![テーブル情報](https://github.com/user-attachments/assets/06154ed0-7281-4cec-8d1b-6c66b1a80cd6)
