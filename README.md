@@ -33,3 +33,7 @@ Thymeleafを利用して受講生情報を一覧表示できるように変更�
 
 ## テーブル情報
 ![テーブル情報](https://github.com/user-attachments/assets/06154ed0-7281-4cec-8d1b-6c66b1a80cd6)
+
+## コメントを受けての変更と実行結果(ブラウザから　http://localhost:8080/studentsCourseList にアクセスした結果)
+https://github.com/MIKU-ch/StudentManagementSystem/pull/8#issuecomment-2676108396
+
