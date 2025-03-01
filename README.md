@@ -1,39 +1,35 @@
-## 概要
+# 変更点
+## StudentController.java
+- 新しい学生を登録するための `newStudent` メソッドと `registerStudent` メソッドを追加
+  - `/newStudent` で新規学生登録フォームを表示
+  - `/registerStudent` で学生情報を登録
+- `StudentDetail` クラスを使い、学生とコース情報を同時に登録する処理を実装
 
-Thymeleafを利用して受講生情報を一覧表示できるように変更しました。
+## StudentsCourses.java
+- `courseName` フィールドを `StudentsCourses` クラスに追加
 
-## 変更点
+## StudentRepository.java
+- `registerStudent` メソッドと `registerStudentsCourses` メソッドを追加
+  - 学生情報とコース情報をデータベースに登録
 
-### 1. `build.gradle` の変更
+## StudentService.java
+- `registerStudent` メソッドを追加
+  - `StudentDetail` を受け取って、学生情報とコース情報をそれぞれ登録
 
-- Thymeleafの依存関係を追加しました。
-  ```gradle
-  implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-  ```
+## registerStudent.html
+- 学生登録フォームを作成
+  - 学生情報とコース情報を一度に入力できるフォームを作成
+  - コース選択や開始日、終了日の入力フィールドを追加
 
-### 2. `StudentController.java` の変更
+## studentList.html
+- 学生リストに変更はありませんが、他のテンプレートと一貫性を保つように調整
 
-- `@RestController` から `@Controller` に変更。
-- `getStudentsList` メソッドの戻り値を `String` に変更し、 `Model` に `studentList` を追加する形に修正。
+# 動作確認
+- **1. 学生情報とコースの登録前**
+![前](https://github.com/user-attachments/assets/d6bc3287-8b9f-475d-8799-ec5d53e822d4)
 
-### 3. `StudentsCourses.java` の変更
+- **2. 学生情報登録ページで必要事項を記入し登録ボタンを押す**
+![登録](https://github.com/user-attachments/assets/d0b3c70d-536e-4d57-95cb-b7453b445f70)
 
-- `id` を `String` から `int` に変更。（正規化を学習したため、テーブル情報を適切に設計する目的で変更）
-- `courseName` を `courseId` に変更。（正規化を学習したため、冗長性を減らし適切に管理するために変更）
-- `startDateAt` と `endDateAt` を `LocalDateTime` から `LocalDate` に変更。（単純にわかりやすくするために変更）
-
-### 4. `studentList.html` の追加
-
-- 受講生情報を一覧表示するテンプレートを追加。
-
-## 注意点
-
-- `@RequestMapping("/students")` を追加したため、`http://localhost:8080/students/studentsCourseList`
-  でアクセスできます。
-
-## テーブル情報
-![テーブル情報](https://github.com/user-attachments/assets/06154ed0-7281-4cec-8d1b-6c66b1a80cd6)
-
-
-## コメントを受けての変更と実行結果(ブラウザから　`http://localhost:8080/studentsCourseList` にアクセスした結果)
-https://github.com/MIKU-ch/StudentManagementSystem/pull/8#issuecomment-2676108396
+- **3. 学生情報とコースが登録されていることを確認しました**
+![登録できていることを確認しました](https://github.com/user-attachments/assets/a7db7181-9c1d-4350-ad98-23c139e02e0f)
