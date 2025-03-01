@@ -26,7 +26,7 @@
 
 # 動作確認
 - **1. 学生情報とコースの登録前**
-![前](https://github.com/user-attachments/assets/d6bc3287-8b9f-475d-8799-ec5d53e822d4)
+![受講生とコース](https://github.com/user-attachments/assets/f7c2eb61-991c-4532-b442-5e0922f06425)
 
 - **2. 学生情報登録ページで必要事項を記入し登録ボタンを押す**
 ![登録](https://github.com/user-attachments/assets/d0b3c70d-536e-4d57-95cb-b7453b445f70)
