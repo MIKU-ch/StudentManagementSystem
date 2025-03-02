@@ -1,35 +1,32 @@
-# 変更点
-## StudentController.java
-- 新しい学生を登録するための `newStudent` メソッドと `registerStudent` メソッドを追加
-  - `/newStudent` で新規学生登録フォームを表示
-  - `/registerStudent` で学生情報を登録
-- `StudentDetail` クラスを使い、学生とコース情報を同時に登録する処理を実装
+# 受講生情報更新機能の追加
+このリポジトリでは、受講生の詳細情報を表示・更新する機能を追加しました。以下は、主な変更点です。
+## 変更点
+### 1. `StudentController` の更新
+- 受講生詳細情報を表示するための新しい `GET` メソッド (`/student/{id}`) を追加。
+  - 受講生の詳細情報と関連するコース情報を取得し、画面に表示。
+  - コース情報が空の場合、デフォルトで1件のコース情報を追加（null回避）。
+  
+- 受講生情報を更新する `POST` メソッド (`/updateStudent`) を追加。
+  - 入力フォームから送信された受講生情報をデータベースに更新。
 
-## StudentsCourses.java
-- `courseName` フィールドを `StudentsCourses` クラスに追加
+### 2. `StudentRepository` の更新
+- 特定の学生のコース情報を取得するメソッド `findCoursesByStudentId` を追加。
+- 学生情報の更新メソッド `updateStudent` を再実装（学生情報の更新処理を担当）。
+- 学生のコース情報を更新するための新しいメソッド `updateStudentsCourses` を追加。
 
-## StudentRepository.java
-- `registerStudent` メソッドと `registerStudentsCourses` メソッドを追加
-  - 学生情報とコース情報をデータベースに登録
+### 3. `StudentService` の更新
+- 受講生情報とそのコース情報を取得する `getStudentDetailById` メソッドを追加。
+- 受講生情報とコース情報を更新する `updateStudent` メソッドを追加。
 
-## StudentService.java
-- `registerStudent` メソッドを追加
-  - `StudentDetail` を受け取って、学生情報とコース情報をそれぞれ登録
+### 4. HTMLテンプレートの変更
+- `studentList.html` にて、受講生名をクリック可能なリンクに変更。
+  - リンクをクリックすることで、受講生の詳細画面に遷移。
 
-## registerStudent.html
-- 学生登録フォームを作成
-  - 学生情報とコース情報を一度に入力できるフォームを作成
-  - コース選択や開始日、終了日の入力フィールドを追加
+- `updateStudent.html` にて、受講生情報の更新フォームを実装。
+  - 学生IDをhiddenフィールドとして追加し、フォーム送信時に受講生IDも送信されるように変更。
+  - コース名の選択肢をリストで表示し、選択されたコース情報をフォームに反映。
 
-## studentList.html
-- 学生リストに変更はありませんが、他のテンプレートと一貫性を保つように調整
-
-# 動作確認
-- **1. 学生情報とコースの登録前**
-![受講生とコース](https://github.com/user-attachments/assets/f7c2eb61-991c-4532-b442-5e0922f06425)
-
-- **2. 学生情報登録ページで必要事項を記入し登録ボタンを押す**
-![登録](https://github.com/user-attachments/assets/d0b3c70d-536e-4d57-95cb-b7453b445f70)
-
-- **3. 学生情報とコースが登録されていることを確認しました**
-![登録できていることを確認しました](https://github.com/user-attachments/assets/a7db7181-9c1d-4350-ad98-23c139e02e0f)
+### 実行結果(id:6の鈴木健太郎さんの年齢を更新できることを確認しました)
+![前](https://github.com/user-attachments/assets/ad8bdb05-edae-4794-9684-97c113421630)
+![更新](https://github.com/user-attachments/assets/e8f65250-95ee-4524-9004-498cab8184b6)
+![後](https://github.com/user-attachments/assets/6a5d9b6a-6c16-4de3-8c68-229a16b48798)
