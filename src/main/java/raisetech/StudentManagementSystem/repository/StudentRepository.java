@@ -20,6 +20,10 @@ public interface StudentRepository {
   @Select("SELECT * FROM students WHERE id = #{id}")
   Student findById(int id);
 
+  // 特定の学生のコース情報を取得
+  @Select("SELECT * FROM students_courses WHERE student_id = #{id}")
+  List<StudentsCourses> findCoursesByStudentId(int id);
+
   // 学生とコース情報を取得（INNER JOIN）
   @Select("""
         SELECT sc.student_id, s.name, sc.course_name, sc.start_date_at, sc.end_date_at
@@ -27,20 +31,6 @@ public interface StudentRepository {
         INNER JOIN students s ON s.id = sc.student_id
       """)
   List<StudentsCourses> searchStudentsCourses();
-
-  // 学生情報を更新
-  @Update("""
-          UPDATE students
-          SET name = #{name},
-              kana_name = #{kanaName},
-              nickname = #{nickname},
-              email = #{email},
-              region = #{region},
-              age = #{age},
-              gender = #{gender}
-          WHERE id = #{id}
-      """)
-  void updateStudent(Student student);
 
   // 学生情報を登録
   @Insert("""
@@ -57,4 +47,22 @@ public interface StudentRepository {
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void registerStudentsCourses(StudentsCourses sc);
+
+  // 学生情報を更新
+  @Update("""
+          UPDATE students
+          SET name = #{name}, kana_name = #{kanaName}, nickname = #{nickname},
+              email = #{email}, region = #{region}, age = #{age}, gender = #{gender},
+              remark = #{remark}, is_deleted = #{isDeleted}
+          WHERE id = #{id}
+      """)
+  void updateStudent(Student student);
+
+  // 学生のコース情報を更新
+  @Update("""
+          UPDATE students_courses
+          SET course_name = #{courseName}, end_date_at = #{endDateAt}
+          WHERE student_id = #{studentId} AND course_name = #{courseName}
+      """)
+  void updateStudentsCourses(StudentsCourses sc);
 }
