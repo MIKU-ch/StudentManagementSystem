@@ -36,7 +36,7 @@ public class StudentController {
     return "studentList";
   }
 
-  @GetMapping("/students/form")
+  @GetMapping("/students")
   public String newStudent(Model model) {
     // StudentDetail の courses プロパティは「courses」であるため、フォームでは courses[0] を参照する
     StudentDetail studentDetail = new StudentDetail();

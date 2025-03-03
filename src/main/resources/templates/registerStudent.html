@@ -26,9 +26,9 @@
     <label for="gender">性別</label>
     <select id="gender" th:field="*{student.gender}" required>
       <option value="" disabled selected>選択してください</option>
-      <option value="男性">男性</option>
-      <option value="女性">女性</option>
-      <option value="その他">その他</option>
+      <option th:each="gender : ${T(raisetech.StudentManagementSystem.domain.Gender).values()}"
+              th:value="${gender}"
+              th:text="${gender.label}"></option>
     </select>
   </div>
   <div>
@@ -48,7 +48,6 @@
   <h2>コース情報</h2>
   <div>
     <label for="courseName">コース名</label>
-    <!-- ここでは courses リストの 0 番目の要素を操作する例です -->
     <select id="courseName" th:field="*{courses[0].courseName}" required>
       <option value="" disabled selected>選択してください</option>
       <option value="AWS">AWS</option>
