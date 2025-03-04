@@ -37,4 +37,5 @@
 ## テーブル情報
 ![テーブル情報](https://github.com/user-attachments/assets/a010d029-4851-42e7-b3f8-ea198bc9697c)
 
-
+## レビュー後の変更
+https://github.com/MIKU-ch/StudentManagementSystem/pull/10#issuecomment-2694192677
