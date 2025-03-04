@@ -33,3 +33,8 @@
 
 - **3. 学生情報とコースが登録されていることを確認しました**
 ![登録できていることを確認しました](https://github.com/user-attachments/assets/a7db7181-9c1d-4350-ad98-23c139e02e0f)
+
+## テーブル情報
+![テーブル情報](https://github.com/user-attachments/assets/a010d029-4851-42e7-b3f8-ea198bc9697c)
+
+
