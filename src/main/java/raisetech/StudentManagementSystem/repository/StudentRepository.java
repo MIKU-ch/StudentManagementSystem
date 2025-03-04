@@ -28,20 +28,6 @@ public interface StudentRepository {
       """)
   List<StudentsCourses> searchStudentsCourses();
 
-  // 学生情報を更新
-  @Update("""
-          UPDATE students
-          SET name = #{name},
-              kana_name = #{kanaName},
-              nickname = #{nickname},
-              email = #{email},
-              region = #{region},
-              age = #{age},
-              gender = #{gender}
-          WHERE id = #{id}
-      """)
-  void updateStudent(Student student);
-
   // 学生情報を登録
   @Insert("""
           INSERT INTO students(name, kana_name, nickname, email, region, age, gender, remark, is_deleted)
@@ -57,4 +43,22 @@ public interface StudentRepository {
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void registerStudentsCourses(StudentsCourses sc);
+
+  // 学生情報を更新
+  @Update("""
+          UPDATE students
+          SET name = #{name}, kana_name = #{kanaName}, nickname = #{nickname},
+              email = #{email}, region = #{region}, age = #{age}, gender = #{gender},
+              remark = #{remark}, is_deleted = #{isDeleted}
+          WHERE id = #{id}
+      """)
+  void updateStudent(Student student);
+
+  // 学生のコース情報を更新
+  @Update("""
+          UPDATE students_courses
+          SET course_name = #{courseName}, end_date_at = #{endDateAt}
+          WHERE student_id = #{studentId} AND start_date_at = #{startDateAt}
+      """)
+  void updateStudentsCourses(StudentsCourses sc);
 }

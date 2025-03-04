@@ -43,4 +43,17 @@ public class StudentService {
       }
     }
   }
+
+  @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    // 学生情報を更新
+    repository.updateStudent(studentDetail.getStudent());
+
+    // 既存のコース情報を更新
+    if (studentDetail.getCourses() != null) {
+      for (StudentsCourses sc : studentDetail.getCourses()) {
+        repository.updateStudentsCourses(sc);
+      }
+    }
+  }
 }
