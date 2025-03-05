@@ -2,6 +2,7 @@ package raisetech.StudentManagementSystem.data;
 
 import lombok.Getter;
 import lombok.Setter;
+import raisetech.StudentManagementSystem.domain.Gender;
 
 @Getter
 @Setter
@@ -15,7 +16,7 @@ public class Student {
   private String email;
   private String region;
   private int age;
-  private String gender;
+  private Gender gender;
   private String remark;
   private boolean isDeleted;
 }

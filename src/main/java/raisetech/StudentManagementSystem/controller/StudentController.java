@@ -37,7 +37,7 @@ public class StudentController {
     return "studentList";
   }
 
-  @GetMapping("/newStudent")
+  @GetMapping("/students")
   public String newStudent(Model model) {
     // StudentDetail の courses プロパティは「courses」であるため、フォームでは courses[0] を参照する
     StudentDetail studentDetail = new StudentDetail();
@@ -49,7 +49,7 @@ public class StudentController {
     return "registerStudent";
   }
 
-  @PostMapping("/registerStudent")
+  @PostMapping("/students")
   public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
     if (result.hasErrors()) {
       return "registerStudent";
