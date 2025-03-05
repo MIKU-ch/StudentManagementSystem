@@ -61,8 +61,9 @@ public interface StudentRepository {
   // 学生のコース情報を更新
   @Update("""
           UPDATE students_courses
-          SET course_name = #{courseName}, end_date_at = #{endDateAt}
-          WHERE student_id = #{studentId} AND course_name = #{courseName}
+          SET course_name = #{courseName}, start_date_at = #{startDateAt}, end_date_at = #{endDateAt}
+          WHERE student_id = #{studentId}
       """)
   void updateStudentsCourses(StudentsCourses sc);
+
 }
