@@ -20,7 +20,7 @@
   </div>
   <div>
     <label for="age">年齢</label>
-    <input type="text" id="age" th:field="*{student.age}" required/>
+    <input type="number" id="age" th:field="*{student.age}" required/>
   </div>
   <div>
     <label for="gender">性別</label>
@@ -28,7 +28,7 @@
       <option value="" disabled selected>選択してください</option>
       <option th:each="gender : ${T(raisetech.StudentManagementSystem.domain.Gender).values()}"
               th:value="${gender}"
-              th:text="${gender.label}"></option>
+              th:text="${gender.getLabel()}"></option>
     </select>
   </div>
   <div>
@@ -44,11 +44,11 @@
     <input type="text" id="remark" th:field="*{student.remark}"/>
   </div>
 
-  <!-- courses section -->
   <h2>コース情報</h2>
-  <div>
+  <div th:each="course, stat : *{courses}">
     <label for="courseName">コース名</label>
-    <select id="courseName" th:field="*{courses[0].courseName}" required>
+    <select th:id="|courseName-${stat.index}|" th:field="*{courses[__${stat.index}__].courseName}"
+            required>
       <option value="" disabled selected>選択してください</option>
       <option value="AWS">AWS</option>
       <option value="Java">Java</option>
@@ -56,14 +56,14 @@
       <option value="デザイン">デザイン</option>
       <option value="マーケティング">マーケティング</option>
     </select>
-  </div>
-  <div>
+
     <label for="startDateAt">開始日</label>
-    <input type="date" id="startDateAt" th:field="*{courses[0].startDateAt}" required/>
-  </div>
-  <div>
+    <input type="date" th:id="|startDateAt-${stat.index}|"
+           th:field="*{courses[__${stat.index}__].startDateAt}" required/>
+
     <label for="endDateAt">終了日</label>
-    <input type="date" id="endDateAt" th:field="*{courses[0].endDateAt}"/>
+    <input type="date" th:id="|endDateAt-${stat.index}|"
+           th:field="*{courses[__${stat.index}__].endDateAt}"/>
   </div>
 
   <div>
