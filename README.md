@@ -1,4 +1,3 @@
-
 # 受講生情報更新機能の追加
 このリポジトリでは、受講生の詳細情報を表示・更新する機能を追加しました。以下は、主な変更点です。
 ## 変更点
@@ -31,3 +30,7 @@
 ![前](https://github.com/user-attachments/assets/ad8bdb05-edae-4794-9684-97c113421630)
 ![更新](https://github.com/user-attachments/assets/e8f65250-95ee-4524-9004-498cab8184b6)
 ![後](https://github.com/user-attachments/assets/6a5d9b6a-6c16-4de3-8c68-229a16b48798)
+
+## 追加の処理
+https://github.com/MIKU-ch/StudentManagementSystem/pull/11#issuecomment-2701002332
+https://github.com/MIKU-ch/StudentManagementSystem/pull/12#issue-2903914171
