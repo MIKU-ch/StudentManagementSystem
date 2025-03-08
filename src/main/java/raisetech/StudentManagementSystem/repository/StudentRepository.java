@@ -20,6 +20,10 @@ public interface StudentRepository {
   @Select("SELECT * FROM students WHERE id = #{id}")
   Student findById(int id);
 
+  // 学生が存在するかチェック（追加）
+  @Select("SELECT COUNT(*) > 0 FROM students WHERE id = #{id}")
+  boolean existsStudentById(int id);
+
   // 特定の学生のコース情報を取得
   @Select("SELECT * FROM students_courses WHERE student_id = #{id}")
   List<StudentsCourses> findCoursesByStudentId(int id);
@@ -65,5 +69,4 @@ public interface StudentRepository {
           WHERE student_id = #{studentId}
       """)
   void updateStudentsCourses(StudentsCourses sc);
-
 }

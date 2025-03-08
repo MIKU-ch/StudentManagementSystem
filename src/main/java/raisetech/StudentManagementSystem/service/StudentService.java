@@ -62,6 +62,11 @@ public class StudentService {
 
   @Transactional
   public void updateStudent(StudentDetail studentDetail) {
+    // 学生情報が存在するかチェック
+    if (!repository.existsStudentById(studentDetail.getStudent().getId())) {
+      throw new IllegalArgumentException("更新対象の学生が存在しません");
+    }
+
     // 学生情報を更新
     repository.updateStudent(studentDetail.getStudent());
 
