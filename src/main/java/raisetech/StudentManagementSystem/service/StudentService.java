@@ -62,22 +62,29 @@ public class StudentService {
 
   @Transactional
   public void updateStudent(StudentDetail studentDetail) {
-    // 学生情報が存在するかチェック
-    if (!repository.existsStudentById(studentDetail.getStudent().getId())) {
-      throw new IllegalArgumentException("更新対象の学生が存在しません");
-    }
-
     // 学生情報を更新
     repository.updateStudent(studentDetail.getStudent());
 
-    // 学生IDを取得
-    int studentId = studentDetail.getStudent().getId();
-
-    // 既存のコース情報を更新
+    // コース情報の更新
     if (studentDetail.getCourses() != null) {
       for (StudentsCourses sc : studentDetail.getCourses()) {
-        sc.setStudentId(studentId);
-        repository.updateStudentsCourses(sc);
+        // もしIDが未設定なら、DBから既存のコース情報を取得してIDをセットするなどの処理を行う
+        if (sc.getId() == null) {
+          List<StudentsCourses> existingCourses = repository.findCoursesByStudentId(
+              studentDetail.getStudent().getId());
+          for (StudentsCourses existing : existingCourses) {
+            if (existing.getCourseName().equals(sc.getCourseName())) {
+              sc.setId(existing.getId());
+              break;
+            }
+          }
+        }
+
+        if (sc.getId() != null) {
+          repository.updateStudentsCourses(sc);
+        } else {
+          throw new IllegalArgumentException("更新対象のコースが見つかりません");
+        }
       }
     }
   }

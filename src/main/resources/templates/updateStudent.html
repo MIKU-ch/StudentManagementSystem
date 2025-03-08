@@ -51,6 +51,9 @@
 
   <h2>コース情報</h2>
   <div th:each="course, stat : *{courses}">
+    <!-- hiddenフィールドでコースIDを送信 -->
+    <input type="hidden" th:field="*{courses[__${stat.index}__].id}"/>
+
     <label for="courseName">コース名</label>
     <select th:id="|courseName-${stat.index}|" th:field="*{courses[__${stat.index}__].courseName}"
             required>

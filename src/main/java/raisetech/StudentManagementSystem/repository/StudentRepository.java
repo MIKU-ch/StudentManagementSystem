@@ -62,11 +62,12 @@ public interface StudentRepository {
       """)
   void updateStudent(Student student);
 
-  // 学生のコース情報を更新
+  // 学生のコース情報を更新（id で特定のコースのみ更新するように修正）
   @Update("""
           UPDATE students_courses
           SET course_name = #{courseName}, start_date_at = #{startDateAt}, end_date_at = #{endDateAt}
-          WHERE student_id = #{studentId}
+          WHERE id = #{id}
       """)
   void updateStudentsCourses(StudentsCourses sc);
+
 }
