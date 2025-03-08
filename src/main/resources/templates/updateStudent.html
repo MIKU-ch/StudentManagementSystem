@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>受講生登録</title>
+  <title>受講生詳細</title>
 </head>
 <body>
-<h1>受講生登録</h1>
-<form th:action="@{/students}" th:object="${studentDetail}" method="post">
+<h1>受講生詳細</h1>
+<form th:action="@{/students/{id}(id=${studentDetail.student.id})}" th:object="${studentDetail}"
+      method="post">
+  <!-- 学生IDをhiddenフィールドとして追加 -->
+  <input type="hidden" th:field="*{student.id}"/>
+
   <div>
     <label for="name">名前</label>
     <input type="text" id="name" th:field="*{student.name}" required/>
@@ -26,9 +30,10 @@
     <label for="gender">性別</label>
     <select id="gender" th:field="*{student.gender}" required>
       <option value="" disabled selected>選択してください</option>
-      <option th:each="gender : ${T(raisetech.StudentManagementSystem.domain.Gender).values()}"
-              th:value="${gender}"
-              th:text="${gender.getLabel()}"></option>
+      <option th:each="g : ${T(raisetech.StudentManagementSystem.domain.Gender).values()}"
+              th:value="${g}"
+              th:text="${g.getLabel()}">
+      </option>
     </select>
   </div>
   <div>
@@ -46,6 +51,9 @@
 
   <h2>コース情報</h2>
   <div th:each="course, stat : *{courses}">
+    <!-- hiddenフィールドでコースIDを送信 -->
+    <input type="hidden" th:field="*{courses[__${stat.index}__].id}"/>
+
     <label for="courseName">コース名</label>
     <select th:id="|courseName-${stat.index}|" th:field="*{courses[__${stat.index}__].courseName}"
             required>
@@ -67,7 +75,7 @@
   </div>
 
   <div>
-    <button type="submit">登録</button>
+    <button type="submit">更新</button>
   </div>
 </form>
 </body>
