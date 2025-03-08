@@ -1,5 +1,6 @@
 package raisetech.StudentManagementSystem.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,21 @@ public class StudentService {
     return repository.searchStudentsCourses();
   }
 
+  // 指定されたIDの学生情報とコース情報を取得する
+  public StudentDetail getStudentDetailById(int id) {
+    // 学生情報を取得
+    Student student = repository.findById(id);
+
+    // 学生のコース情報を取得
+    List<StudentsCourses> courses = repository.findCoursesByStudentId(id);
+
+    // StudentDetail にセット
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(student);
+    studentDetail.setCourses(courses != null ? courses : new ArrayList<>());
+
+    return studentDetail;
+  }
 
   @Transactional
   public void registerStudent(StudentDetail studentDetail) {
@@ -40,6 +56,40 @@ public class StudentService {
       for (StudentsCourses sc : studentDetail.getCourses()) {
         sc.setStudentId(studentId);
         repository.registerStudentsCourses(sc);
+      }
+    }
+  }
+
+  @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    // findByIdを使って、更新対象の学生が存在するかチェック
+    if (repository.findById(studentDetail.getStudent().getId()) == null) {
+      throw new IllegalArgumentException("更新対象の学生が存在しません");
+    }
+
+    // 学生情報を更新
+    repository.updateStudent(studentDetail.getStudent());
+
+    // コース情報の更新
+    if (studentDetail.getCourses() != null) {
+      for (StudentsCourses sc : studentDetail.getCourses()) {
+        // もしIDが未設定なら、DBから既存のコース情報を取得してIDをセットする
+        if (sc.getId() == null) {
+          List<StudentsCourses> existingCourses = repository.findCoursesByStudentId(
+              studentDetail.getStudent().getId());
+          for (StudentsCourses existing : existingCourses) {
+            if (existing.getCourseName().equals(sc.getCourseName())) {
+              sc.setId(existing.getId());
+              break;
+            }
+          }
+        }
+
+        if (sc.getId() != null) {
+          repository.updateStudentsCourses(sc);
+        } else {
+          throw new IllegalArgumentException("更新対象のコースが見つかりません");
+        }
       }
     }
   }
