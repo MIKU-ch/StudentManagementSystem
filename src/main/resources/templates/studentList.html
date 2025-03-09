@@ -17,6 +17,7 @@
     <th>年齢</th>
     <th>性別</th>
     <th>備考</th>
+    <th>キャンセル</th>
     <th>コース</th>
   </tr>
   </thead>
@@ -25,15 +26,19 @@
     <td th:text="${studentDetail.student.id}"></td>
     <td>
       <a th:href="@{/students/{id}/form(id=${studentDetail.student.id})}"
-         th:text="${studentDetail.student.name}"></a>
+         th:text="${studentDetail.student.name}">室伏 広治</a>
     </td>
-    <td th:text="${studentDetail.student.kanaName}"></td>
-    <td th:text="${studentDetail.student.nickname}"></td>
-    <td th:text="${studentDetail.student.email}"></td>
-    <td th:text="${studentDetail.student.region}"></td>
-    <td th:text="${studentDetail.student.age}"></td>
-    <td th:text="${studentDetail.student.gender.label}"></td>
+    <td th:text="${studentDetail.student.kanaName}">むろふし こうじ</td>
+    <td th:text="${studentDetail.student.nickname}">Koji</td>
+    <td th:text="${studentDetail.student.email}">koji.murobushi@example.com</td>
+    <td th:text="${studentDetail.student.region}">香川</td>
+    <td th:text="${studentDetail.student.age}">50</td>
+    <td th:text="${studentDetail.student.gender.label}">男性</td>
     <td th:text="${studentDetail.student.remark}"></td>
+    <td>
+      <!-- チェックボックスでキャンセル状態を表示 -->
+      <input type="checkbox" disabled="disabled" th:checked="${studentDetail.student.deleted}"/>
+    </td>
     <td>
       <ul th:if="${studentDetail.courses != null}">
         <li th:each="course : ${studentDetail.courses}">

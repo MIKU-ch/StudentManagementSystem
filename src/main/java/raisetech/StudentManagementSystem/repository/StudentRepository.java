@@ -13,13 +13,13 @@ import raisetech.StudentManagementSystem.data.StudentsCourses;
 public interface StudentRepository {
 
   // 全ての学生情報を取得
-  @Select("SELECT * FROM students")
+  @Select("SELECT * FROM students ")
   List<Student> search();
 
   // 学生情報をIDで取得
   @Select("SELECT * FROM students WHERE id = #{id}")
   Student findById(int id);
-  
+
   // 特定の学生のコース情報を取得
   @Select("SELECT * FROM students_courses WHERE student_id = #{id}")
   List<StudentsCourses> findCoursesByStudentId(int id);
@@ -35,7 +35,7 @@ public interface StudentRepository {
   // 学生情報を登録
   @Insert("""
           INSERT INTO students(name, kana_name, nickname, email, region, age, gender, remark, is_deleted)
-          VALUES(#{name}, #{kanaName}, #{nickname}, #{email}, #{region}, #{age}, #{gender}, #{remark}, false)
+          VALUES(#{name}, #{kanaName}, #{nickname}, #{email}, #{region}, #{age}, #{gender}, #{remark}, 0)
       """)
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void registerStudent(Student student);
