@@ -26,9 +26,9 @@ public interface StudentRepository {
 
   // 学生とコース情報を取得（INNER JOIN）
   @Select("""
-        SELECT sc.student_id, s.name, sc.course_name, sc.start_date_at, sc.end_date_at
-        FROM students_courses sc
-        INNER JOIN students s ON s.id = sc.student_id
+            SELECT sc.id, sc.student_id, s.name, sc.course_name, sc.start_date_at, sc.end_date_at
+            FROM students_courses sc
+            INNER JOIN students s ON s.id = sc.student_id
       """)
   List<StudentsCourses> searchStudentsCourses();
 
