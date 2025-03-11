@@ -1,4 +1,5 @@
 ## 更新履歴
+
 ### 1. `StudentController` の変更
 - `@Controller` から `@RestController` に変更し、レスポンスとして HTML ではなく JSON を返すように変更。
 - `listStudents` メソッドの戻り値を `List<StudentDetail>` に変更。
@@ -18,13 +19,17 @@
 - @Select (courses id = Nullでした。。。後ほど直します。)
 ![一覧](https://github.com/user-attachments/assets/3b8133c0-8b1c-44a9-8946-066ecbbf63f0)
 
+- courses.idが表示されました
+![course idが表示されました](https://github.com/user-attachments/assets/7e4ccfc1-4042-47da-a867-e495492956e0)
+
 - @Post(登録)
 ![登録](https://github.com/user-attachments/assets/fc73e22e-df6a-44f2-bdc6-8c18312f97ed)
 ![登録後](https://github.com/user-attachments/assets/2da00fd1-feed-4d92-95b0-60e1123c93af)
 
-- @Post(更新 is_deleted更新できてませんでした。。。後ほど直します。)
+- @Post( is_deleted更新できてませんでした。。。後ほど直します。)
 ![更新 (1)](https://github.com/user-attachments/assets/22fed614-594b-42d5-8c8e-9d12161f69e9)
 ![更新 (2)](https://github.com/user-attachments/assets/e3d993e0-b4cf-478d-97be-e5803d03f372)
 
-  
+- isDeletedが更新できるようになりました。
+![isDeletedの更新](https://github.com/user-attachments/assets/0542efcb-461b-467f-90e4-da675da5a7d0)
 
