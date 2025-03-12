@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
@@ -14,31 +15,36 @@ import raisetech.StudentManagementSystem.repository.StudentRepository;
 public class StudentService {
 
   private final StudentRepository repository;
+  private final StudentConverter converter;
 
   @Autowired
-  public StudentService(StudentRepository repository) {
+  public StudentService(StudentRepository repository, StudentConverter converter) {
     this.repository = repository;
+    this.converter = converter;
   }
 
-  // 全ての学生を取得する
+  // 全ての学生情報を取得
   public List<Student> searchStudentList() {
     return repository.search();
   }
 
-  // コースを全件取得する
+  // コースを全件取得
   public List<StudentsCourses> searchStudentsCourseList() {
     return repository.searchStudentsCourses();
   }
 
+  // 学生一覧（受講コース情報含む）を取得する
+  public List<StudentDetail> listStudentDetails() {
+    List<StudentsCourses> studentsCourses = searchStudentsCourseList();
+    List<Student> students = searchStudentList();
+    return converter.convertToStudentDetailList(students, studentsCourses);
+  }
+
   // 指定されたIDの学生情報とコース情報を取得する
   public StudentDetail getStudentDetailById(int id) {
-    // 学生情報を取得
     Student student = repository.findById(id);
-
-    // 学生のコース情報を取得
     List<StudentsCourses> courses = repository.findCoursesByStudentId(id);
 
-    // StudentDetail にセット
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
     studentDetail.setCourses(courses != null ? courses : new ArrayList<>());
@@ -50,7 +56,7 @@ public class StudentService {
   public void registerStudent(StudentDetail studentDetail) {
     // 学生情報を登録
     repository.registerStudent(studentDetail.getStudent());
-    // 登録された学生のIDを取得し、各コース情報にセット
+    // 登録された学生のIDを各コースにセット
     int studentId = studentDetail.getStudent().getId();
     if (studentDetail.getCourses() != null) {
       for (StudentsCourses sc : studentDetail.getCourses()) {
@@ -61,14 +67,11 @@ public class StudentService {
   }
 
   public void updateStudent(StudentDetail studentDetail) {
-    // 学生情報の更新
     repository.updateStudent(studentDetail.getStudent());
 
-    // コース情報の更新（各コースはIDを必須とする）
     if (studentDetail.getCourses() != null) {
       for (StudentsCourses sc : studentDetail.getCourses()) {
         if (sc.getId() == null) {
-          // IDが無い場合は更新対象が特定できないため、例外をスローする
           throw new IllegalArgumentException("更新対象のコースIDが提供されていません");
         } else {
           repository.updateStudentsCourses(sc);
