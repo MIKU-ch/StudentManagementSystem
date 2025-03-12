@@ -1,6 +1,8 @@
 package raisetech.StudentManagementSystem.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
-import raisetech.StudentManagementSystem.data.Student;
-import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
@@ -20,28 +19,30 @@ import raisetech.StudentManagementSystem.service.StudentService;
 public class StudentController {
 
   private final StudentService service;
-  private final StudentConverter converter;
 
   @Autowired
-  public StudentController(StudentService service, StudentConverter converter) {
+  public StudentController(StudentService service) {
     this.service = service;
-    this.converter = converter;
   }
 
   // 学生一覧（受講コース情報含む）を取得する
   @GetMapping
   public List<StudentDetail> listStudents() {
-    List<StudentsCourses> studentsCourses = service.searchStudentsCourseList();
-    List<Student> students = service.searchStudentList();
-    return converter.convertToStudentDetailList(students, studentsCourses);
+    return service.listStudentDetails();
   }
 
   // 新規学生を登録する
   @PostMapping
-  public ResponseEntity<String> registerStudent(@RequestBody StudentDetail studentDetail) {
+  public ResponseEntity<Map<String, Object>> registerStudent(
+      @RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
-    return ResponseEntity.ok(
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("message",
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
+    response.put("studentDetail", studentDetail);
+
+    return ResponseEntity.ok(response);
   }
 
   // 指定されたIDの学生情報を取得する

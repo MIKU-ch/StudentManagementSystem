@@ -24,13 +24,12 @@ public class StudentConverter {
 
       // StudentDetail を生成
       StudentDetail studentDetail = new StudentDetail();
-      studentDetail.setStudent(student);  // 学生情報をセット
-      studentDetail.setCourses(studentCourseList);  // 学生に関連するコースをセット
+      studentDetail.setStudent(student);
+      studentDetail.setCourses(studentCourseList);
 
-      // StudentDetail をリストに追加
       studentDetails.add(studentDetail);
     }
 
-    return studentDetails; // StudentDetail のリストを返す
+    return studentDetails;
   }
 }
