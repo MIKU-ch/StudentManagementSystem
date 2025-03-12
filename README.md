@@ -32,8 +32,9 @@ StudentConverterクラスをStudentServiceにインジェクトし、学生情�
 StudentConverter内での不要なコメントや処理が削除され、よりシンプルなコードにリファクタリングされました。
 
 ## 動作確認(登録、更新、検索ができることをポストマンで確認しました。)
-![前データベース (1)](https://github.com/user-attachments/assets/62fd4a2d-ce9a-4c3d-837a-776c436e6f79)
+![前データベース (1)](https://github.com/user-attachments/assets/32adef15-40e4-470f-9302-9936036a1d09)
 ![登録](https://github.com/user-attachments/assets/05c4f8ec-850a-4e0d-aca5-038a549af371)
 ![更新](https://github.com/user-attachments/assets/0492459c-e8d5-418a-9565-7c30a69319ab)
 ![検索](https://github.com/user-attachments/assets/6165b575-37a7-44f9-a311-94333e7b0001)
-![後データベース](https://github.com/user-attachments/assets/a3b8eb3d-8323-43b7-ac75-9f7a102d242f)
+![後データベース](https://github.com/user-attachments/assets/eb6232b1-d406-4106-bb80-d51f23cc7a26)
+
