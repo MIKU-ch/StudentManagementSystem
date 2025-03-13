@@ -1,5 +1,6 @@
 package raisetech.StudentManagementSystem.domain;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,9 @@ import raisetech.StudentManagementSystem.data.StudentsCourses;
 @AllArgsConstructor
 public class StudentDetail {
 
+  @Valid
   private Student student;
+  
+  @Valid
   private List<StudentsCourses> courseList;
 }

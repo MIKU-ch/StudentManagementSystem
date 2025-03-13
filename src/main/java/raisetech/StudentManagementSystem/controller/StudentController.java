@@ -1,10 +1,10 @@
 package raisetech.StudentManagementSystem.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,6 @@ public class StudentController {
 
   private final StudentService service;
 
-  @Autowired
   public StudentController(StudentService service) {
     this.service = service;
   }
@@ -38,7 +37,7 @@ public class StudentController {
   // 新規学生を登録する
   @PostMapping
   public ResponseEntity<Map<String, Object>> registerStudent(
-      @RequestBody StudentDetail studentDetail) {
+      @Valid @RequestBody StudentDetail studentDetail) { // バリデーションを追加
     service.registerStudent(studentDetail);
 
     Map<String, Object> response = new HashMap<>();
@@ -57,11 +56,10 @@ public class StudentController {
     return ResponseEntity.ok(studentDetail);
   }
 
-
-  // 指定された学生の情報を更新する。キャンセルフラグの更新もここで行います(論理削除)
+  // 指定された学生の情報を更新する。キャンセルフラグの更新もここで行う(論理削除)
   @PutMapping("/{id}")
-  public ResponseEntity<String> updateStudent(@PathVariable int id,
-      @RequestBody StudentDetail studentDetail) {
+  public ResponseEntity<String> updateStudent(@PathVariable @Min(1) int id,
+      @Valid @RequestBody StudentDetail studentDetail) { // バリデーションを追加
     studentDetail.getStudent().setId(id); // IDをセット
     service.updateStudent(studentDetail);
     return ResponseEntity.ok(
