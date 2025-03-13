@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
+import raisetech.StudentManagementSystem.exception.TestException;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @Validated
@@ -30,8 +31,8 @@ public class StudentController {
 
   // 学生一覧（受講コース情報含む）を取得する
   @GetMapping
-  public List<StudentDetail> listStudents() {
-    return service.listStudentDetails();
+  public List<StudentDetail> listStudents() throws TestException {
+    throw new TestException("エラーが発生しました。");
   }
 
   // 新規学生を登録する
