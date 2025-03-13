@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="raisetech.StudentManagementSystem.repository.StudentRepository">
+
+  <!-- 全ての学生情報を取得 -->
+  <select id="search" resultType="raisetech.StudentManagementSystem.data.Student">
+    SELECT * FROM students
+  </select>
+
+  <!-- 学生情報をIDで取得 -->
+  <select id="findById" resultType="raisetech.StudentManagementSystem.data.Student">
+    SELECT * FROM students WHERE id = #{id}
+  </select>
+
+  <!-- 特定の学生のコース情報を取得 -->
+  <select id="findCoursesByStudentId"
+    resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
+    SELECT * FROM students_courses WHERE student_id = #{id}
+  </select>
+
+  <!-- 学生とコース情報を取得（INNER JOIN） -->
+  <select id="searchStudentsCourses"
+    resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
+    SELECT
+    sc.id,
+    sc.student_id,
+    s.name,
+    sc.course_name,
+    sc.start_date_at,
+    sc.end_date_at
+    FROM students_courses sc
+    INNER JOIN students s ON s.id = sc.student_id
+  </select>
+
+  <!-- 学生情報を登録 -->
+  <insert id="registerStudent" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO students(
+    name, kana_name, nickname, email, region, age, gender, remark, is_deleted
+    )
+    VALUES(
+    #{name}, #{kanaName}, #{nickname}, #{email}, #{region}, #{age}, #{gender}, #{remark}, 0
+    )
+  </insert>
+
+  <!-- 学生のコース情報を登録 -->
+  <insert id="registerStudentsCourses" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO students_courses(
+    student_id, course_name, start_date_at, end_date_at
+    )
+    VALUES(
+    #{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}
+    )
+  </insert>
+
+  <!-- 学生情報を更新 -->
+  <update id="updateStudent">
+    UPDATE students
+    SET name = #{name},
+    kana_name = #{kanaName},
+    nickname = #{nickname},
+    email = #{email},
+    region = #{region},
+    age = #{age},
+    gender = #{gender},
+    remark = #{remark},
+    is_deleted = #{isDeleted}
+    WHERE id = #{id}
+  </update>
+
+  <!-- 学生のコース情報を更新（id で特定のコースのみ更新） -->
+  <update id="updateStudentsCourses">
+    UPDATE students_courses
+    SET course_name = #{courseName},
+    start_date_at = #{startDateAt},
+    end_date_at = #{endDateAt}
+    WHERE id = #{id}
+  </update>
+
+</mapper>
