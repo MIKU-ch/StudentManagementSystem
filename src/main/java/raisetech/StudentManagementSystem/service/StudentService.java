@@ -47,7 +47,7 @@ public class StudentService {
 
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
-    studentDetail.setCourses(courses != null ? courses : new ArrayList<>());
+    studentDetail.setCourseList(courses != null ? courses : new ArrayList<>());
 
     return studentDetail;
   }
@@ -58,8 +58,13 @@ public class StudentService {
     repository.registerStudent(studentDetail.getStudent());
     // 登録された学生のIDを各コースにセット
     int studentId = studentDetail.getStudent().getId();
-    if (studentDetail.getCourses() != null) {
-      for (StudentsCourses sc : studentDetail.getCourses()) {
+    initStudentsCourse(studentDetail, studentId);
+  }
+
+  // 受講生コース情報を登録する際の初期情報を設定する
+  private void initStudentsCourse(StudentDetail studentDetail, int studentId) {
+    if (studentDetail.getCourseList() != null) {
+      for (StudentsCourses sc : studentDetail.getCourseList()) {
         sc.setStudentId(studentId);
         repository.registerStudentsCourses(sc);
       }
@@ -69,8 +74,9 @@ public class StudentService {
   public void updateStudent(StudentDetail studentDetail) {
     repository.updateStudent(studentDetail.getStudent());
 
-    if (studentDetail.getCourses() != null) {
-      for (StudentsCourses sc : studentDetail.getCourses()) {
+    if (studentDetail.getCourseList() != null) {
+      for (StudentsCourses sc : studentDetail.getCourseList()) {
+        sc.setStudentId(studentDetail.getStudent().getId()); // IDを設定
         if (sc.getId() == null) {
           throw new IllegalArgumentException("更新対象のコースIDが提供されていません");
         } else {

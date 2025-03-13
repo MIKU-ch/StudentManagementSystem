@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,10 +53,11 @@ public class StudentController {
     return ResponseEntity.ok(studentDetail);
   }
 
-  // 指定された学生の情報を更新する
-  @PostMapping("/{id}")
+  // 指定された学生の情報を更新する。キャンセルフラグの更新もここで行います(論理削除)
+  @PutMapping("/{id}")
   public ResponseEntity<String> updateStudent(@PathVariable int id,
       @RequestBody StudentDetail studentDetail) {
+    studentDetail.getStudent().setId(id); // IDをセット
     service.updateStudent(studentDetail);
     return ResponseEntity.ok(
         studentDetail.getStudent().getName() + "さんの受講生情報が更新されました。");
