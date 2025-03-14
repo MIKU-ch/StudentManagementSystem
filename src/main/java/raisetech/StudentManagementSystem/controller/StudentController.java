@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
-import raisetech.StudentManagementSystem.exception.TestException;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @Validated
@@ -31,14 +30,14 @@ public class StudentController {
 
   // 学生一覧（受講コース情報含む）を取得する
   @GetMapping
-  public List<StudentDetail> listStudents() throws TestException {
-    throw new TestException("エラーが発生しました。");
+  public List<StudentDetail> listStudents() {
+    return service.listStudentDetails();
   }
 
   // 新規学生を登録する
   @PostMapping
   public ResponseEntity<Map<String, Object>> registerStudent(
-      @Valid @RequestBody StudentDetail studentDetail) { // バリデーションを追加
+      @Valid @RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
 
     Map<String, Object> response = new HashMap<>();
@@ -51,17 +50,16 @@ public class StudentController {
 
   // 指定されたIDの学生情報を取得する
   @GetMapping("/{id}")
-  public ResponseEntity<StudentDetail> getStudentDetail(
-      @PathVariable @Min(1) int id) { // idが1以上の整数であることを検証
+  public ResponseEntity<StudentDetail> getStudentDetail(@PathVariable @Min(1) int id) {
     StudentDetail studentDetail = service.getStudentDetailById(id);
     return ResponseEntity.ok(studentDetail);
   }
 
-  // 指定された学生の情報を更新する。キャンセルフラグの更新もここで行う(論理削除)
+  // 指定された学生の情報を更新する
   @PutMapping("/{id}")
   public ResponseEntity<String> updateStudent(@PathVariable @Min(1) int id,
-      @Valid @RequestBody StudentDetail studentDetail) { // バリデーションを追加
-    studentDetail.getStudent().setId(id); // IDをセット
+      @Valid @RequestBody StudentDetail studentDetail) {
+    studentDetail.getStudent().setId(id);
     service.updateStudent(studentDetail);
     return ResponseEntity.ok(
         studentDetail.getStudent().getName() + "さんの受講生情報が更新されました。");
