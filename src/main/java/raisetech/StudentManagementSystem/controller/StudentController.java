@@ -1,5 +1,9 @@
 package raisetech.StudentManagementSystem.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.util.HashMap;
@@ -17,41 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
-/**
- * 受講生情報を管理するコントローラークラス。 学生の登録、更新、取得などのAPIを提供する。
- */
 @Validated
 @RestController
 @RequestMapping("/students")
+@Tag(name = "Student", description = "学生の登録、更新、取得などのAPI")
 public class StudentController {
 
   private final StudentService service;
 
-  /**
-   * コンストラクタ
-   *
-   * @param service 学生情報を管理するサービス
-   */
   public StudentController(StudentService service) {
     this.service = service;
   }
 
-  /**
-   * すべての受講生情報（受講コース情報含む）を取得する。
-   *
-   * @return 学生情報のリスト
-   */
+  @Operation(summary = "一覧検索", description = "すべての受講生情報（受講コース情報含む）を取得する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "学生情報のリストが返される")
+  })
   @GetMapping
   public List<StudentDetail> listStudents() {
     return service.listStudentDetails();
   }
 
-  /**
-   * 新規の受講生を登録する。
-   *
-   * @param studentDetail 登録する学生の詳細情報（受講コース情報含む）
-   * @return 登録結果のメッセージと学生情報
-   */
+  @Operation(summary = "受講生登録", description = "新規の受講生を登録する。登録する学生の詳細情報（受講コース情報含む）を受け取り、登録結果のメッセージと学生情報を返す")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "登録成功。メッセージと登録された学生情報が返される"),
+      @ApiResponse(responseCode = "400", description = "入力エラー")
+  })
   @PostMapping
   public ResponseEntity<Map<String, Object>> registerStudent(
       @Valid @RequestBody StudentDetail studentDetail) {
@@ -65,25 +60,22 @@ public class StudentController {
     return ResponseEntity.ok(response);
   }
 
-  /**
-   * 指定されたIDの学生情報を取得する。
-   *
-   * @param id 学生ID（1以上の整数）
-   * @return 指定された学生の詳細情報
-   */
+  @Operation(summary = "学生情報取得", description = "指定されたIDの学生情報を取得する。学生IDは1以上の整数である必要がある")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "指定された学生の詳細情報が返される"),
+      @ApiResponse(responseCode = "400", description = "入力されたIDが無効")
+  })
   @GetMapping("/{id}")
   public ResponseEntity<StudentDetail> getStudentDetail(@PathVariable @Min(1) int id) {
     StudentDetail studentDetail = service.getStudentDetailById(id);
     return ResponseEntity.ok(studentDetail);
   }
 
-  /**
-   * 指定されたIDの学生情報を更新する。
-   *
-   * @param id            更新対象の学生ID（1以上の整数）
-   * @param studentDetail 更新後の学生情報
-   * @return 更新完了メッセージ
-   */
+  @Operation(summary = "学生情報更新", description = "指定されたIDの学生情報を更新する。更新後の学生情報をリクエストボディで受け取る")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "更新成功。更新完了メッセージが返される"),
+      @ApiResponse(responseCode = "400", description = "入力エラー")
+  })
   @PutMapping("/{id}")
   public ResponseEntity<String> updateStudent(@PathVariable @Min(1) int id,
       @Valid @RequestBody StudentDetail studentDetail) {

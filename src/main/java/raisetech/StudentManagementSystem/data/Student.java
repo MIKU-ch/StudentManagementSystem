@@ -1,5 +1,6 @@
 package raisetech.StudentManagementSystem.data;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import raisetech.StudentManagementSystem.domain.Gender;
 
+@Schema(description = "受講生")
 @Getter
 @Setter
 public class Student {
