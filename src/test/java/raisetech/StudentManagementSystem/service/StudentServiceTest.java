@@ -46,15 +46,21 @@ class StudentServiceTest {
   void コース情報も含む受講生情報の全件検索_リポジトリとコンバーターの処理が適切に呼び出せていること() {
     List<Student> students = new ArrayList<>();
     List<StudentsCourses> studentsCourses = new ArrayList<>();
+    List<StudentDetail> expectedDetails = new ArrayList<>();
+
     when(repository.search()).thenReturn(students);
     when(repository.searchStudentsCourses()).thenReturn(studentsCourses);
+    when(converter.convertToStudentDetailList(students, studentsCourses)).thenReturn(
+        expectedDetails);
 
-    sut.listStudentDetails();
+    List<StudentDetail> result = sut.listStudentDetails();
 
+    assertSame(expectedDetails, result); // 返り値のチェック追加
     verify(repository, times(1)).search();
     verify(repository, times(1)).searchStudentsCourses();
     verify(converter, times(1)).convertToStudentDetailList(students, studentsCourses);
   }
+
 
   @Test
   void 学生一覧検索_リポジトリのsearchメソッドが呼び出されること() {
@@ -132,8 +138,10 @@ class StudentServiceTest {
     // 各コースに学生IDがセットされ、登録処理が呼ばれていること
     verify(repository, times(1)).registerStudentsCourses(course1);
     verify(repository, times(1)).registerStudentsCourses(course2);
-    assertEquals(1, course1.getStudentId());
+
+    assertEquals(1, course1.getStudentId()); // 学生IDが正しくセットされているか
     assertEquals(1, course2.getStudentId());
+    assertNotNull(studentDetail.getCourseList()); // コースリストがnullでないことを確認
   }
 
   @Test
