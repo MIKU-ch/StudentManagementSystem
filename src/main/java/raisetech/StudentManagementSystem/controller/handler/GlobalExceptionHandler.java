@@ -1,5 +1,7 @@
 package raisetech.StudentManagementSystem.controller.handler;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,25 +14,38 @@ import raisetech.StudentManagementSystem.exception.CustomAppException;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(CustomAppException.class)
-  public ResponseEntity<String> handleCustomAppException(CustomAppException ex) {
+  public ResponseEntity<Map<String, String>> handleCustomAppException(CustomAppException ex) {
+    Map<String, String> errorResponse = new LinkedHashMap<>();
+    errorResponse.put("error", "エラーメッセージ");
+    errorResponse.put("message", ex.getMessage());
+
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body("エラーメッセージ：\n" + ex.getMessage());
+        .body(errorResponse);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-    StringBuilder errors = new StringBuilder();
+  public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    Map<String, Object> errorResponse = new LinkedHashMap<>();
+    errorResponse.put("error", "バリデーションエラー");
+
+    Map<String, String> fieldErrors = new LinkedHashMap<>();
     for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-      errors.append("エラーメッセージ: ")
-          .append(error.getDefaultMessage())
-          .append("\n");
+      fieldErrors.put(error.getField(), error.getDefaultMessage());
     }
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+    errorResponse.put("fieldErrors", fieldErrors);
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(errorResponse);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleGeneralException(Exception ex) {
+  public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
+    Map<String, String> errorResponse = new LinkedHashMap<>();
+    errorResponse.put("error", "予期しないエラー");
+    errorResponse.put("message", ex.getMessage());
+
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("エラーメッセージ：\n" + ex.getMessage());
+        .body(errorResponse);
   }
 }
