@@ -1,5 +1,6 @@
 package raisetech.StudentManagementSystem.controller.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,6 @@ public class GlobalExceptionHandler {
     Map<String, String> errorResponse = new LinkedHashMap<>();
     errorResponse.put("error", "エラーメッセージ");
     errorResponse.put("message", ex.getMessage());
-
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(errorResponse);
   }
@@ -28,13 +28,25 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException ex) {
     Map<String, Object> errorResponse = new LinkedHashMap<>();
     errorResponse.put("error", "バリデーションエラー");
-
     Map<String, String> fieldErrors = new LinkedHashMap<>();
     for (FieldError error : ex.getBindingResult().getFieldErrors()) {
       fieldErrors.put(error.getField(), error.getDefaultMessage());
     }
     errorResponse.put("fieldErrors", fieldErrors);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(errorResponse);
+  }
 
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
+      ConstraintViolationException ex) {
+    Map<String, Object> errorResponse = new LinkedHashMap<>();
+    errorResponse.put("error", "バリデーションエラー");
+    Map<String, String> fieldErrors = new LinkedHashMap<>();
+    ex.getConstraintViolations().forEach(violation -> {
+      fieldErrors.put(violation.getPropertyPath().toString(), violation.getMessage());
+    });
+    errorResponse.put("fieldErrors", fieldErrors);
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(errorResponse);
   }
@@ -44,7 +56,6 @@ public class GlobalExceptionHandler {
     Map<String, String> errorResponse = new LinkedHashMap<>();
     errorResponse.put("error", "予期しないエラー");
     errorResponse.put("message", ex.getMessage());
-
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(errorResponse);
   }
