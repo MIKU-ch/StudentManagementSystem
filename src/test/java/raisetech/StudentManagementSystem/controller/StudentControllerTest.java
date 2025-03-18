@@ -50,25 +50,7 @@ class StudentControllerTest {
 
     verify(service, times(1)).listStudentDetails();
   }
-
-  @Test
-  void 正常系_存在しない受講生IDを検索すると空のデータが返ること() throws Exception {
-    int id = 999;
-    Student student = new Student();
-    student.setId(id);
-    student.setName("テスト花子");
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
-
-    when(service.getStudentDetailById(id)).thenReturn(studentDetail);
-
-    mockMvc.perform(get("/students/{id}", id))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.student.name").value("テスト花子"));
-
-    verify(service, times(1)).getStudentDetailById(id);
-  }
-
+  
   @Test
   void 正常系_受講生詳細を登録すると入力データがそのままレスポンスに含まれること()
       throws Exception {
@@ -187,7 +169,7 @@ class StudentControllerTest {
     int id = 999; // 存在しないIDなど
     when(service.getStudentDetailById(id))
         .thenThrow(new CustomAppException("学生情報が見つかりません。"));
-    
+
     mockMvc.perform(get("/students/{id}", id))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("エラーメッセージ"))
