@@ -111,7 +111,12 @@ public class StudentService {
    * @param studentDetail 更新する学生の詳細情報
    * @throws CustomAppException 学生が存在しない場合、またはコースIDが提供されていない場合に例外をスロー
    */
-  public void updateStudent(StudentDetail studentDetail) {
+  public void updateStudent(int id, StudentDetail studentDetail) {
+    // リクエストURLのIDとボディ内のIDが一致するかチェック
+    if (studentDetail.getStudent().getId() != id) {
+      throw new CustomAppException("リクエストURLのIDとボディ内のIDが一致しません。");
+    }
+
     // 更新対象の学生が存在するかチェック
     if (repository.findById(studentDetail.getStudent().getId()) == null) {
       throw new CustomAppException("更新対象の学生が存在しません");
@@ -133,5 +138,43 @@ public class StudentService {
         }
       }
     }
+  }
+
+  /**
+   * 学生に新しいコースを追加する
+   *
+   * @param studentId 学生ID
+   * @param sc        受講するコース情報
+   */
+  @Transactional
+  public void addCourseForStudent(int studentId, StudentsCourses sc) {
+    // 学生が存在するか確認
+    Student student = repository.findById(studentId);
+    if (student == null) {
+      throw new CustomAppException("指定された学生が存在しません。");
+    }
+
+    // 既存のコース情報を取得
+    List<StudentsCourses> existingCourses = repository.findCoursesByStudentId(studentId);
+    if (existingCourses.size() >= 3) {
+      throw new CustomAppException("受講生は最大3つのコースしか受講できません。");
+    }
+
+    if (sc.getStartDateAt() != null) {
+      for (StudentsCourses existingCourse : existingCourses) {
+        // 終了日時が未設定の場合も未終了と判断する
+        if (existingCourse.getEndDateAt() == null ||
+            sc.getStartDateAt().isBefore(existingCourse.getEndDateAt())) {
+          throw new CustomAppException(
+              "前のコースが終了していないため、新しいコースを追加できません。");
+        }
+      }
+    }
+
+    // コースの学生IDを設定
+    sc.setStudentId(studentId);
+
+    // コースを登録
+    repository.insertStudentsCourses(sc);
   }
 }

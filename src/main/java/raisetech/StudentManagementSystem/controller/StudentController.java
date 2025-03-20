@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
@@ -77,11 +78,22 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PutMapping("/{id}")
-  public ResponseEntity<String> updateStudent(@PathVariable @Min(1) int id,
-      @Valid @RequestBody StudentDetail studentDetail) {
-    studentDetail.getStudent().setId(id);
-    service.updateStudent(studentDetail);
-    return ResponseEntity.ok(
-        studentDetail.getStudent().getName() + "さんの受講生情報が更新されました。");
+  public ResponseEntity<String> updateStudent(
+      @PathVariable int id,
+      @RequestBody @Valid StudentDetail studentDetail) {
+    service.updateStudent(id, studentDetail);
+    return ResponseEntity.ok("学生情報を更新しました");
+  }
+
+  @Operation(summary = "受講生にコースを追加", description = "指定された受講生に新しいコースを追加する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "コース追加成功"),
+      @ApiResponse(responseCode = "400", description = "入力エラー")
+  })
+  @PostMapping("/{id}/courses")
+  public ResponseEntity<String> addCourseForStudent(@PathVariable @Min(1) int id,
+      @Valid @RequestBody StudentsCourses sc) {
+    service.addCourseForStudent(id, sc);
+    return ResponseEntity.ok("新しいコースが追加されました。");
   }
 }
