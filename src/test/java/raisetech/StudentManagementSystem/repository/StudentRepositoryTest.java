@@ -2,11 +2,13 @@ package raisetech.StudentManagementSystem.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import raisetech.StudentManagementSystem.data.Student;
+import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.Gender;
 
 @MybatisTest
@@ -43,7 +45,7 @@ public class StudentRepositoryTest {
     // 初期の5件に加え、新規登録が成功して 6 件になるはず
     assertThat(actual.size()).isEqualTo(6);
 
-    // さらに、登録した学生が正しく保存されているか確認
+    // 登録した学生が正しく保存されているか確認
     Student inserted = sut.findById(student.getId());
     assertThat(inserted).isNotNull();
     assertThat(inserted.getName()).isEqualTo("新規 学生");
@@ -60,5 +62,27 @@ public class StudentRepositoryTest {
 
     Student updated = sut.findById(1);
     assertThat(updated.getName()).isEqualTo("更新された名前");
+  }
+
+  @Test
+  void コースが追加できること() {
+    // 既存の学生（ID=1）の存在を確認
+    Student student = sut.findById(1);
+    assertThat(student).isNotNull();
+
+    // 新規コース情報を作成
+    StudentsCourses course = new StudentsCourses();
+    course.setStudentId(student.getId());
+    course.setCourseName("Test Course");
+    course.setStartDateAt(LocalDate.of(2025, 1, 1));
+    course.setEndDateAt(LocalDate.of(2025, 12, 31));
+
+    // コースを追加
+    sut.insertStudentsCourses(course);
+
+    // 追加後、学生に紐づくコース情報を取得し、追加されたコースが存在するか検証
+    List<StudentsCourses> courses = sut.findCoursesByStudentId(student.getId());
+    boolean found = courses.stream().anyMatch(c -> "Test Course".equals(c.getCourseName()));
+    assertThat(found).isTrue();
   }
 }

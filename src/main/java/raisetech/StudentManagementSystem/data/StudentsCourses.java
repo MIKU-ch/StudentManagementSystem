@@ -8,7 +8,9 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.ibatis.type.Alias;
 
+@Alias("StudentsCourses")
 @Schema(description = "受講生コース情報")
 @Getter
 @Setter
