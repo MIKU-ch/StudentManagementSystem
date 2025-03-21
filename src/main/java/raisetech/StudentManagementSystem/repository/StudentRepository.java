@@ -2,6 +2,7 @@ package raisetech.StudentManagementSystem.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import raisetech.StudentManagementSystem.data.CourseStatus;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 
@@ -34,4 +35,14 @@ public interface StudentRepository {
 
   // コースを追加
   void insertStudentsCourses(StudentsCourses sc);
+
+  // ---- CourseStatus 関連のメソッド ----
+  // 指定された course_id の申込状況を取得
+  CourseStatus findCourseStatusByCourseId(int courseId);
+
+  // 申込状況を登録
+  void insertCourseStatus(CourseStatus cs);
+
+  // 申込状況を更新
+  void updateCourseStatus(CourseStatus cs);
 }

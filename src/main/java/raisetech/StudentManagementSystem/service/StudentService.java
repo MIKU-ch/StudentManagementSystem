@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
+import raisetech.StudentManagementSystem.data.CourseStatus;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
+import raisetech.StudentManagementSystem.domain.CourseStatusEnum;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.exception.CustomAppException;
 import raisetech.StudentManagementSystem.repository.StudentRepository;
-
 
 @Service
 public class StudentService {
@@ -66,12 +67,10 @@ public class StudentService {
     if (student == null) {
       throw new CustomAppException("指定された受講生が見つかりませんでした。");
     }
-
     List<StudentsCourses> courses = repository.findCoursesByStudentId(id);
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
     studentDetail.setCourseList(courses != null ? courses : new ArrayList<>());
-
     return studentDetail;
   }
 
@@ -84,7 +83,6 @@ public class StudentService {
   public void registerStudent(StudentDetail studentDetail) {
     // 学生情報の登録
     repository.registerStudent(studentDetail.getStudent());
-
     // 学生IDを取得し、受講コース情報を登録
     int studentId = studentDetail.getStudent().getId();
     initStudentsCourse(studentDetail, studentId);
@@ -108,6 +106,7 @@ public class StudentService {
   /**
    * 学生情報を更新する
    *
+   * @param id            リクエストURLの学生ID
    * @param studentDetail 更新する学生の詳細情報
    * @throws CustomAppException 学生が存在しない場合、またはコースIDが提供されていない場合に例外をスロー
    */
@@ -116,20 +115,16 @@ public class StudentService {
     if (studentDetail.getStudent().getId() != id) {
       throw new CustomAppException("リクエストURLのIDとボディ内のIDが一致しません。");
     }
-
     // 更新対象の学生が存在するかチェック
     if (repository.findById(studentDetail.getStudent().getId()) == null) {
       throw new CustomAppException("更新対象の学生が存在しません");
     }
-
     // 学生情報の更新
     repository.updateStudent(studentDetail.getStudent());
-
     // 受講コース情報の更新
     if (studentDetail.getCourseList() != null) {
       for (StudentsCourses sc : studentDetail.getCourseList()) {
         sc.setStudentId(studentDetail.getStudent().getId());
-
         // コースIDが提供されていない場合は例外をスロー
         if (sc.getId() == null) {
           throw new CustomAppException("更新対象のコースIDが提供されていません");
@@ -153,13 +148,11 @@ public class StudentService {
     if (student == null) {
       throw new CustomAppException("指定された学生が存在しません。");
     }
-
     // 既存のコース情報を取得
     List<StudentsCourses> existingCourses = repository.findCoursesByStudentId(studentId);
     if (existingCourses.size() >= 3) {
       throw new CustomAppException("受講生は最大3つのコースしか受講できません。");
     }
-
     if (sc.getStartDateAt() != null) {
       for (StudentsCourses existingCourse : existingCourses) {
         // 終了日時が未設定の場合も未終了と判断する
@@ -170,11 +163,29 @@ public class StudentService {
         }
       }
     }
-
     // コースの学生IDを設定
     sc.setStudentId(studentId);
-
     // コースを登録
     repository.insertStudentsCourses(sc);
+  }
+
+  /**
+   * 指定された受講生コースに対して、申込状況を登録する。
+   *
+   * @param courseId 受講生コースのID
+   * @param status   申込状況（CourseStatusEnum）
+   * @throws CustomAppException 既に申込状況が登録されている場合
+   */
+  @Transactional
+  public void addCourseStatus(int courseId, CourseStatusEnum status) {
+    // 既に該当する course_id の申込状況が登録されているか確認
+    CourseStatus cs = repository.findCourseStatusByCourseId(courseId);
+    if (cs != null) {
+      throw new CustomAppException("申込状況はすでに登録されています。");
+    }
+    cs = new CourseStatus();
+    cs.setCourseId(courseId);
+    cs.setStatus(status);
+    repository.insertCourseStatus(cs);
   }
 }

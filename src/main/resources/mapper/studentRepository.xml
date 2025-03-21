@@ -85,4 +85,27 @@
     VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt});
   </insert>
 
+  <!-- ===== CourseStatus 関連のマッピング ===== -->
+  <!-- 指定された course_id の申込状況を取得 -->
+  <select id="findCourseStatusByCourseId"
+    resultType="raisetech.StudentManagementSystem.data.CourseStatus">
+    SELECT * FROM course_status WHERE course_id = #{courseId}
+  </select>
+
+  <!-- 申込状況を登録 -->
+  <insert id="insertCourseStatus"
+    parameterType="raisetech.StudentManagementSystem.data.CourseStatus" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO course_status (course_id, status)
+    VALUES (#{courseId}, #{status})
+  </insert>
+
+  <!-- 申込状況を更新 -->
+  <update id="updateCourseStatus"
+    parameterType="raisetech.StudentManagementSystem.data.CourseStatus">
+    UPDATE course_status
+    SET status = #{status}
+    WHERE id = #{id}
+  </update>
+
 </mapper>

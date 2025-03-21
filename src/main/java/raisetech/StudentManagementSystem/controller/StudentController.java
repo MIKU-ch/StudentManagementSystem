@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
+import raisetech.StudentManagementSystem.domain.CourseStatusEnum;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
@@ -52,12 +53,10 @@ public class StudentController {
   public ResponseEntity<Map<String, Object>> registerStudent(
       @Valid @RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
-
     Map<String, Object> response = new HashMap<>();
     response.put("message",
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
     response.put("studentDetail", studentDetail);
-
     return ResponseEntity.ok(response);
   }
 
@@ -91,9 +90,23 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PostMapping("/{id}/courses")
-  public ResponseEntity<String> addCourseForStudent(@PathVariable @Min(1) int id,
+  public ResponseEntity<String> addCourseForStudent(
+      @PathVariable @Min(1) int id,
       @Valid @RequestBody StudentsCourses sc) {
     service.addCourseForStudent(id, sc);
     return ResponseEntity.ok("新しいコースが追加されました。");
+  }
+
+  @Operation(summary = "受講コース申込状況登録", description = "指定された受講生コースに対して、申込状況を登録する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "申込状況登録成功"),
+      @ApiResponse(responseCode = "400", description = "入力エラー")
+  })
+  @PostMapping("/courses/{courseId}/status")
+  public ResponseEntity<String> addCourseStatus(
+      @PathVariable @Min(1) int courseId,
+      @RequestBody @Valid String status) {
+    service.addCourseStatus(courseId, CourseStatusEnum.fromLabel(status));
+    return ResponseEntity.ok("申込状況が登録されました。");
   }
 }
