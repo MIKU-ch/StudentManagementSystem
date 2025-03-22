@@ -10,13 +10,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
@@ -35,11 +36,25 @@ class StudentServiceTest {
   @Mock
   private StudentConverter converter;
 
+  @InjectMocks
   private StudentService sut;
 
-  @BeforeEach
-  void before() {
-    sut = new StudentService(repository, converter);
+  private Student createTestStudent(int id, String name) {
+    Student student = new Student();
+    student.setId(id);
+    student.setName(name);
+    return student;
+  }
+
+  private StudentsCourses createTestCourse(Integer id, int studentId, String courseName,
+      LocalDate startDate, LocalDate endDate) {
+    StudentsCourses course = new StudentsCourses();
+    course.setId(id);
+    course.setStudentId(studentId);
+    course.setCourseName(courseName);
+    course.setStartDateAt(startDate);
+    course.setEndDateAt(endDate);
+    return course;
   }
 
   @Test
@@ -55,12 +70,11 @@ class StudentServiceTest {
 
     List<StudentDetail> result = sut.listStudentDetails();
 
-    assertSame(expectedDetails, result); // 返り値のチェック追加
+    assertSame(expectedDetails, result);
     verify(repository, times(1)).search();
     verify(repository, times(1)).searchStudentsCourses();
     verify(converter, times(1)).convertToStudentDetailList(students, studentsCourses);
   }
-
 
   @Test
   void 学生一覧検索_リポジトリのsearchメソッドが呼び出されること() {
@@ -85,9 +99,7 @@ class StudentServiceTest {
   @Test
   void 指定IDの学生詳細取得_正常系() {
     int id = 1;
-    Student student = new Student();
-    student.setId(id);
-    student.setName("テスト太郎");
+    Student student = createTestStudent(id, "テスト太郎");
 
     List<StudentsCourses> courses = new ArrayList<>();
     StudentsCourses course = new StudentsCourses();
@@ -117,9 +129,7 @@ class StudentServiceTest {
 
   @Test
   void 受講生登録_コース情報が存在する場合() {
-    Student student = new Student();
-    student.setId(1);
-    student.setName("学生A");
+    Student student = createTestStudent(1, "学生A");
 
     // コース情報を用意
     StudentsCourses course1 = new StudentsCourses();
@@ -133,22 +143,18 @@ class StudentServiceTest {
     // 実行
     sut.registerStudent(studentDetail);
 
-    // 学生情報の登録が呼ばれていること
     verify(repository, times(1)).registerStudent(student);
-    // 各コースに学生IDがセットされ、登録処理が呼ばれていること
     verify(repository, times(1)).registerStudentsCourses(course1);
     verify(repository, times(1)).registerStudentsCourses(course2);
 
-    assertEquals(1, course1.getStudentId()); // 学生IDが正しくセットされているか
+    assertEquals(1, course1.getStudentId());
     assertEquals(1, course2.getStudentId());
-    assertNotNull(studentDetail.getCourseList()); // コースリストがnullでないことを確認
+    assertNotNull(studentDetail.getCourseList());
   }
 
   @Test
   void 受講生登録_コース情報がnullの場合() {
-    Student student = new Student();
-    student.setId(2);
-    student.setName("学生B");
+    Student student = createTestStudent(2, "学生B");
 
     StudentDetail studentDetail = new StudentDetail();
     studentDetail.setStudent(student);
@@ -157,69 +163,73 @@ class StudentServiceTest {
     sut.registerStudent(studentDetail);
 
     verify(repository, times(1)).registerStudent(student);
-    // コース情報がnullの場合、コース登録は呼ばれない
     verify(repository, never()).registerStudentsCourses(any(StudentsCourses.class));
   }
 
   @Test
-  void 学生情報更新_正常系() {
+  void 学生基本情報更新_正常系() {
     int id = 1;
-    Student student = new Student();
-    student.setId(id);
-    student.setName("学生A");
+    Student student = createTestStudent(id, "学生A");
     when(repository.findById(id)).thenReturn(student);
 
-    StudentsCourses course = new StudentsCourses();
-    course.setId(100); // 有効なコースIDを設定
-    List<StudentsCourses> courseList = Collections.singletonList(course);
-
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
-    studentDetail.setCourseList(courseList);
-
-    sut.updateStudent(studentDetail);
+    sut.updateStudentBasicInfo(student);
 
     verify(repository, times(1)).updateStudent(student);
-    verify(repository, times(1)).updateStudentsCourses(course);
-    // 学生IDが各コースにセットされていること
-    assertEquals(id, course.getStudentId());
   }
 
   @Test
-  void 学生情報更新_学生が存在しない場合は例外がスローされること() {
-    int id = 1;
-    Student student = new Student();
-    student.setId(id);
-    student.setName("学生A");
-    when(repository.findById(id)).thenReturn(null);
-
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
-    studentDetail.setCourseList(null);
+  void 受講コース更新_存在しないコースなら例外が発生すること() {
+    int studentId = 1;
+    StudentsCourses course = createTestCourse(100, studentId, "Java",
+        LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+    when(repository.findCourseById(100)).thenReturn(null);
 
     CustomAppException exception = assertThrows(CustomAppException.class,
-        () -> sut.updateStudent(studentDetail));
-    assertEquals("更新対象の学生が存在しません", exception.getMessage());
+        () -> sut.updateStudentCourse(studentId, course));
+    assertEquals("更新対象のコースが存在しません", exception.getMessage());
   }
 
   @Test
-  void 学生情報更新_コースIDがnullの場合は例外がスローされること() {
-    int id = 1;
-    Student student = new Student();
-    student.setId(id);
-    student.setName("学生A");
-    when(repository.findById(id)).thenReturn(student);
+  void 受講コース更新_学生IDが一致しない場合は例外が発生する() {
+    int studentId = 1;
+    // コースは学生ID 2 のものとする
+    StudentsCourses existingCourse = createTestCourse(100, 2, "Java",
+        LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+    StudentsCourses courseToUpdate = createTestCourse(100, studentId, "Java Updated",
+        LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+    when(repository.findCourseById(100)).thenReturn(existingCourse);
 
-    // コース情報はあるが、コースIDがnull
+    CustomAppException exception = assertThrows(CustomAppException.class,
+        () -> sut.updateStudentCourse(studentId, courseToUpdate));
+    assertEquals("URL の学生IDと、更新対象のコースの学生IDが一致しません", exception.getMessage());
+  }
+
+  @Test
+  void 受講コース更新_正常に更新できること() {
+    int studentId = 1;
+    StudentsCourses existingCourse = createTestCourse(100, studentId, "Java",
+        LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+    StudentsCourses courseToUpdate = createTestCourse(100, studentId, "Java Updated",
+        LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+    when(repository.findCourseById(100)).thenReturn(existingCourse);
+
+    sut.updateStudentCourse(studentId, courseToUpdate);
+    verify(repository, times(1)).updateStudentsCourses(courseToUpdate);
+  }
+
+  @Test
+  void 受講コース追加_正常に追加できること() {
+    int studentId = 1;
+    Student student = createTestStudent(studentId, "学生A");
+    when(repository.findById(studentId)).thenReturn(student);
+    when(repository.findCoursesByStudentId(studentId)).thenReturn(Collections.emptyList());
+
     StudentsCourses course = new StudentsCourses();
-    List<StudentsCourses> courseList = Collections.singletonList(course);
+    course.setCourseName("新規コース");
+    course.setStartDateAt(LocalDate.of(2025, 4, 1));
+    course.setEndDateAt(LocalDate.of(2025, 6, 30));
 
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
-    studentDetail.setCourseList(courseList);
-
-    CustomAppException exception = assertThrows(CustomAppException.class,
-        () -> sut.updateStudent(studentDetail));
-    assertEquals("更新対象のコースIDが提供されていません", exception.getMessage());
+    sut.addCourseForStudent(studentId, course);
+    verify(repository, times(1)).insertStudentsCourses(course);
   }
 }

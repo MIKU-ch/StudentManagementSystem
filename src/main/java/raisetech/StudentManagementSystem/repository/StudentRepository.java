@@ -31,4 +31,10 @@ public interface StudentRepository {
 
   // 学生のコース情報を更新（id で特定のコースのみ更新）
   void updateStudentsCourses(StudentsCourses sc);
+
+  // コースを追加
+  void insertStudentsCourses(StudentsCourses sc);
+
+  // 受講コースIDで受講コース情報を取得する
+  StudentsCourses findCourseById(int courseId);
 }

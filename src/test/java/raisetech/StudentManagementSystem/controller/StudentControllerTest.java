@@ -3,6 +3,7 @@ package raisetech.StudentManagementSystem.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,7 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,13 +27,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import raisetech.StudentManagementSystem.data.Student;
+import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.Gender;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
-import raisetech.StudentManagementSystem.exception.CustomAppException;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @WebMvcTest(StudentController.class)
-class StudentControllerTest {
+public class StudentControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -41,21 +45,29 @@ class StudentControllerTest {
   private StudentService service;
 
   @Test
-  void 正常系_受講生詳細一覧を検索すると空のリストが返ること() throws Exception {
-    when(service.listStudentDetails()).thenReturn(Collections.emptyList());
+  void 正常系_受講生詳細一覧を検索するとレスポンスに学生詳細情報が含まれること() throws Exception {
+    StudentDetail detail = new StudentDetail();
+    Student student = new Student();
+    student.setId(1);
+    student.setName("テスト太郎");
+    detail.setStudent(student);
+    detail.setCourseList(Collections.emptyList());
+
+    Map<String, Object> expectedResponse = new HashMap<>();
+    expectedResponse.put("students", Collections.singletonList(detail));
+
+    when(service.listStudentDetails()).thenReturn(Collections.singletonList(detail));
 
     mockMvc.perform(get("/students"))
         .andExpect(status().isOk())
-        .andExpect(content().json("[]"));
+        .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
     verify(service, times(1)).listStudentDetails();
   }
-  
+
   @Test
-  void 正常系_受講生詳細を登録すると入力データがそのままレスポンスに含まれること()
+  void 正常系_受講生登録するとレスポンスにメッセージと学生詳細情報が含まれること()
       throws Exception {
-    // リクエストデータを適切に構築（入力チェックも兼ねる）
-    // ※本来は、登録後にDBから最新のデータが返るが、モック化しているため、入力データがそのままレスポンスに反映される
     Student student = new Student();
     student.setName("テスト太郎");
     student.setKanaName("テストタロウ");
@@ -64,117 +76,130 @@ class StudentControllerTest {
     student.setRegion("Tokyo");
     student.setGender(Gender.MALE);
 
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
+    StudentDetail detail = new StudentDetail();
+    detail.setStudent(student);
 
-    // サービス層はvoidメソッドのため、戻り値の設定は不要
+    doNothing().when(service).registerStudent(any(StudentDetail.class));
+
+    Map<String, Object> expectedResponse = new HashMap<>();
+    expectedResponse.put("message", "テスト太郎さんが新規受講生として登録されました。");
+    expectedResponse.put("studentDetail", detail);
+
     mockMvc.perform(post("/students")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studentDetail)))
+            .content(objectMapper.writeValueAsString(detail)))
         .andExpect(status().isOk())
-        // 入力された名前に基づくメッセージが返ることを検証
         .andExpect(jsonPath("$.message").value("テスト太郎さんが新規受講生として登録されました。"))
-        // リクエスト時のstudent情報がレスポンスにエコーされることを検証
         .andExpect(jsonPath("$.studentDetail.student.name").value("テスト太郎"));
 
-    // バリデーションも兼ねているため、サービス層の登録処理が実行されたことを検証
     verify(service, times(1)).registerStudent(any(StudentDetail.class));
   }
 
   @Test
-  void 正常系_受講生詳細を更新すると成功メッセージが返ること() throws Exception {
+  void 正常系_学生基本情報更新時に正しいレスポンスが返ること() throws Exception {
     int id = 1;
     Student student = new Student();
+    student.setId(id);
     student.setName("更新太郎");
     student.setKanaName("更新タロウ");
     student.setAge(25);
     student.setEmail("update@example.com");
     student.setRegion("Osaka");
     student.setGender(Gender.MALE);
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
 
-    // voidメソッドなので、doNothing()でモックの挙動を設定
-    doNothing().when(service).updateStudent(any(StudentDetail.class));
+    doNothing().when(service).updateStudentBasicInfo(any(Student.class));
+
+    Map<String, Object> expectedResponse = new HashMap<>();
+    expectedResponse.put("message", "学生基本情報を更新しました");
 
     mockMvc.perform(put("/students/{id}", id)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studentDetail)))
+            .content(objectMapper.writeValueAsString(student)))
         .andExpect(status().isOk())
-        .andExpect(content().string("更新太郎さんの受講生情報が更新されました。"));
+        .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-    verify(service, times(1)).updateStudent(argThat(detail ->
-        detail.getStudent() != null &&
-            detail.getStudent().getId() != null &&
-            detail.getStudent().getId().intValue() == id &&
-            "更新太郎".equals(detail.getStudent().getName())
+    verify(service, times(1)).updateStudentBasicInfo(argThat(s ->
+        s.getId() == id &&
+            "更新太郎".equals(s.getName()) &&
+            "更新タロウ".equals(s.getKanaName()) &&
+            s.getAge() == 25 &&
+            "update@example.com".equals(s.getEmail()) &&
+            "Osaka".equals(s.getRegion()) &&
+            s.getGender() == Gender.MALE
     ));
   }
 
   @Test
-  void 異常系_受講生登録時にバリデーションエラーが発生するとエラーメッセージが返ること()
-      throws Exception {
-    // 必須項目が不足している不正なデータを作成（例：nameやkanaNameが未設定）
-    Student student = new Student();
-    // student.setName(null);  // ※nullや空文字の場合、@NotNullの制約でエラーとなる前提
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
+  void 正常系_受講コース情報更新時に正しいJSONレスポンスが返ること() throws Exception {
+    int studentId = 1;
+    int courseId = 10;
+    StudentsCourses course = new StudentsCourses();
+    // BodyからはIDは含めず、URLのIDを設定する
+    course.setCourseName("新しいコース名");
+    course.setStartDateAt(LocalDate.of(2024, 4, 1));
+    course.setEndDateAt(LocalDate.of(2025, 6, 30));
 
-    mockMvc.perform(post("/students")
+    doNothing().when(service).updateStudentCourse(anyInt(), any(StudentsCourses.class));
+
+    Map<String, Object> expectedResponse = new HashMap<>();
+    expectedResponse.put("message", "受講コース情報を更新しました");
+
+    mockMvc.perform(put("/students/{studentId}/courses/{courseId}", studentId, courseId)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studentDetail)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value("バリデーションエラー"))
-        .andExpect(jsonPath("$.fieldErrors").exists());
+            .content(objectMapper.writeValueAsString(course)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-    // バリデーションエラーの場合、サービス層は呼ばれない
-    verify(service, times(0)).registerStudent(any(StudentDetail.class));
+    verify(service, times(1)).updateStudentCourse(eq(studentId), argThat(updatedCourse ->
+        updatedCourse.getId() == courseId &&
+            updatedCourse.getStudentId() == studentId &&
+            "新しいコース名".equals(updatedCourse.getCourseName())
+    ));
   }
 
   @Test
-  void 異常系_不正なIDで受講生詳細を取得するとバリデーションエラーが発生すること()
-      throws Exception {
-    int invalidId = 0;  // @Min(1) に違反する値
+  void 正常系_受講生にコース追加時に正しいレスポンスが返ること() throws Exception {
+    int studentId = 1;
+    StudentsCourses course = new StudentsCourses();
+    course.setCourseName("新しいコース");
+    course.setStartDateAt(LocalDate.of(2024, 4, 1));
+    course.setEndDateAt(LocalDate.of(2025, 6, 30));
+
+    doNothing().when(service).addCourseForStudent(anyInt(), any(StudentsCourses.class));
+
+    Map<String, Object> expectedResponse = new HashMap<>();
+    expectedResponse.put("message", "新しいコースが追加されました。");
+
+    mockMvc.perform(post("/students/{id}/courses", studentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(course)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+
+    verify(service, times(1)).addCourseForStudent(eq(studentId), any(StudentsCourses.class));
+  }
+
+  @Test
+  void 異常系_不正なIDで受講生詳細取得時にバリデーションエラーが返ること() throws Exception {
+    int invalidId = 0; // @Min(1) 違反
     mockMvc.perform(get("/students/{id}", invalidId))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error").value("バリデーションエラー"))
         .andExpect(jsonPath("$.fieldErrors").exists());
-
-    // バリデーションエラーの場合、サービス層は呼ばれない
     verify(service, times(0)).getStudentDetailById(anyInt());
   }
 
   @Test
-  void 異常系_受講生詳細を更新する際にバリデーションエラーが発生するとエラーメッセージが返ること()
-      throws Exception {
+  void 異常系_受講生基本情報更新時にバリデーションエラーが返ること() throws Exception {
     int id = 1;
-    // 不正な更新データ（必須項目が不足）
+    // 空のStudentオブジェクトでバリデーションエラーを発生させる（必須項目のエラーなど）と想定
     Student student = new Student();
-    StudentDetail studentDetail = new StudentDetail();
-    studentDetail.setStudent(student);
-
     mockMvc.perform(put("/students/{id}", id)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(studentDetail)))
+            .content(objectMapper.writeValueAsString(student)))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error").value("バリデーションエラー"))
         .andExpect(jsonPath("$.fieldErrors").exists());
-
-    verify(service, times(0)).updateStudent(any(StudentDetail.class));
-  }
-
-  @Test
-  void 異常系_存在しない受講生IDを検索するとCustomAppExceptionが発生しエラーレスポンスが返ること()
-      throws Exception {
-    int id = 999; // 存在しないIDなど
-    when(service.getStudentDetailById(id))
-        .thenThrow(new CustomAppException("学生情報が見つかりません。"));
-
-    mockMvc.perform(get("/students/{id}", id))
-        .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.error").value("エラーメッセージ"))
-        .andExpect(jsonPath("$.message").value("学生情報が見つかりません。"));
-
-    verify(service, times(1)).getStudentDetailById(id);
+    verify(service, times(0)).updateStudentBasicInfo(any(Student.class));
   }
 }

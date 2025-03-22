@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Min;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.StudentManagementSystem.data.Student;
+import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
 
@@ -35,14 +38,16 @@ public class StudentController {
 
   @Operation(summary = "一覧検索", description = "すべての受講生情報（受講コース情報含む）を取得する")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "学生情報のリストが返される")
-  })
+      @ApiResponse(responseCode = "200", description = "学生情報のリストが返される")})
   @GetMapping
-  public List<StudentDetail> listStudents() {
-    return service.listStudentDetails();
+  public ResponseEntity<Map<String, Object>> listStudents() {
+    List<StudentDetail> students = service.listStudentDetails();
+    Map<String, Object> response = new HashMap<>();
+    response.put("students", students);
+    return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "受講生登録", description = "新規の受講生を登録する。登録する学生の詳細情報（受講コース情報含む）を受け取り、登録結果のメッセージと学生情報を返す")
+  @Operation(summary = "受講生登録", description = "新規の受講生を登録する")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "登録成功。メッセージと登録された学生情報が返される"),
       @ApiResponse(responseCode = "400", description = "入力エラー")
@@ -51,37 +56,82 @@ public class StudentController {
   public ResponseEntity<Map<String, Object>> registerStudent(
       @Valid @RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
-
     Map<String, Object> response = new HashMap<>();
     response.put("message",
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
     response.put("studentDetail", studentDetail);
-
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "学生情報取得", description = "指定されたIDの学生情報を取得する。学生IDは1以上の整数である必要がある")
+  @Operation(summary = "学生情報取得", description = "指定されたIDの学生情報を取得する")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "指定された学生の詳細情報が返される"),
       @ApiResponse(responseCode = "400", description = "入力されたIDが無効")
   })
   @GetMapping("/{id}")
-  public ResponseEntity<StudentDetail> getStudentDetail(@PathVariable @Min(1) int id) {
+  public ResponseEntity<Map<String, Object>> getStudentDetail(@PathVariable @Min(1) int id) {
     StudentDetail studentDetail = service.getStudentDetailById(id);
-    return ResponseEntity.ok(studentDetail);
+    Map<String, Object> response = new HashMap<>();
+    response.put("studentDetail", studentDetail);
+    return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "学生情報更新", description = "指定されたIDの学生情報を更新する。更新後の学生情報をリクエストボディで受け取る")
+  @Operation(summary = "学生基本情報更新", description = "指定されたIDの学生基本情報を更新する")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "更新成功。更新完了メッセージが返される"),
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PutMapping("/{id}")
-  public ResponseEntity<String> updateStudent(@PathVariable @Min(1) int id,
-      @Valid @RequestBody StudentDetail studentDetail) {
-    studentDetail.getStudent().setId(id);
-    service.updateStudent(studentDetail);
-    return ResponseEntity.ok(
-        studentDetail.getStudent().getName() + "さんの受講生情報が更新されました。");
+  public ResponseEntity<Map<String, Object>> updateStudentBasicInfo(
+      @PathVariable int id,
+      @RequestBody @Valid Student student) {
+    // URLのIDを受け取って、リクエストボディの学生情報にセットする
+    student.setId(id);
+    service.updateStudentBasicInfo(student);
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", "学生基本情報を更新しました");
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "受講コース情報更新", description = "指定された学生の特定の受講コース情報を更新する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "更新成功。更新完了メッセージが返される"),
+      @ApiResponse(responseCode = "400", description = "入力エラー"),
+      @ApiResponse(responseCode = "500", description = "サーバーエラー")
+  })
+  @PutMapping("/{studentId}/courses/{courseId}")
+  public ResponseEntity<Map<String, Object>> updateStudentCourse(
+      @PathVariable int studentId,
+      @PathVariable int courseId,
+      @RequestBody @Valid StudentsCourses course) {
+
+    // URLのcourseIdとstudentIdを設定。BodyにはIDは含めない。
+    course.setId(courseId);
+    course.setStudentId(studentId);
+
+    Map<String, Object> response = new HashMap<>();
+
+    try {
+      service.updateStudentCourse(studentId, course);
+      response.put("message", "受講コース情報を更新しました");
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      response.put("message", "更新に失敗しました: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+  }
+
+  @Operation(summary = "受講生にコースを追加", description = "指定された受講生に新しいコースを追加する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "コース追加成功"),
+      @ApiResponse(responseCode = "400", description = "入力エラー")
+  })
+  @PostMapping("/{id}/courses")
+  public ResponseEntity<Map<String, Object>> addCourseForStudent(@PathVariable @Min(1) int id,
+      @Valid @RequestBody StudentsCourses sc) {
+    service.addCourseForStudent(id, sc);
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", "新しいコースが追加されました。");
+    return ResponseEntity.ok(response);
   }
 }

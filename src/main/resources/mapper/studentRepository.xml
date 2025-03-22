@@ -79,4 +79,15 @@
     WHERE id = #{id}
   </update>
 
+  <!-- コースを追加 -->
+  <insert id="insertStudentsCourses" parameterType="StudentsCourses">
+    INSERT INTO students_courses (student_id, course_name, start_date_at, end_date_at)
+    VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt});
+  </insert>
+
+  <!-- 受講コースIDで受講コース情報を取得 -->
+  <select id="findCourseById" resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
+    SELECT * FROM students_courses WHERE id = #{courseId}
+  </select>
+
 </mapper>
