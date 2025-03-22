@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Min;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
 import raisetech.StudentManagementSystem.service.StudentService;
@@ -74,18 +76,49 @@ public class StudentController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "学生情報更新", description = "指定されたIDの学生情報を更新する")
+  @Operation(summary = "学生基本情報更新", description = "指定されたIDの学生基本情報を更新する")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "更新成功。更新完了メッセージが返される"),
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PutMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> updateStudent(@PathVariable int id,
-      @RequestBody @Valid StudentDetail studentDetail) {
-    service.updateStudent(id, studentDetail);
+  public ResponseEntity<Map<String, Object>> updateStudentBasicInfo(
+      @PathVariable int id,
+      @RequestBody @Valid Student student) {
+    // URLのIDを受け取って、リクエストボディの学生情報にセットする
+    student.setId(id);
+    service.updateStudentBasicInfo(student);
     Map<String, Object> response = new HashMap<>();
-    response.put("message", "学生情報を更新しました");
+    response.put("message", "学生基本情報を更新しました");
     return ResponseEntity.ok(response);
+  }
+
+  @Operation(summary = "受講コース情報更新", description = "指定された学生の特定の受講コース情報を更新する")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "更新成功。更新完了メッセージが返される"),
+      @ApiResponse(responseCode = "400", description = "入力エラー"),
+      @ApiResponse(responseCode = "500", description = "サーバーエラー")
+  })
+  @PutMapping("/{studentId}/courses/{courseId}")
+  public ResponseEntity<Map<String, Object>> updateStudentCourse(
+      @PathVariable int studentId,
+      @PathVariable int courseId,
+      @RequestBody @Valid StudentsCourses course) {
+
+    // URLのcourseIdとstudentIdを設定。BodyにはIDは含めない。
+    course.setId(courseId);
+    course.setStudentId(studentId);
+
+    Map<String, Object> response = new HashMap<>();
+
+    try {
+      service.updateStudentCourse(studentId, course);
+      response.put("message", "受講コース情報を更新しました");
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      response.put("message", "更新に失敗しました: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
   }
 
   @Operation(summary = "受講生にコースを追加", description = "指定された受講生に新しいコースを追加する")

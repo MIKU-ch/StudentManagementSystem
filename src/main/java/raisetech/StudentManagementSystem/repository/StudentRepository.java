@@ -34,4 +34,7 @@ public interface StudentRepository {
 
   // コースを追加
   void insertStudentsCourses(StudentsCourses sc);
+
+  // 受講コースIDで受講コース情報を取得する
+  StudentsCourses findCourseById(int courseId);
 }

@@ -85,4 +85,9 @@
     VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt});
   </insert>
 
+  <!-- 受講コースIDで受講コース情報を取得 -->
+  <select id="findCourseById" resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
+    SELECT * FROM students_courses WHERE id = #{courseId}
+  </select>
+
 </mapper>
