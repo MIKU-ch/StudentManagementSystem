@@ -24,13 +24,7 @@
   <!-- 学生とコース情報を取得（INNER JOIN） -->
   <select id="searchStudentsCourses"
     resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
-    SELECT
-    sc.id,
-    sc.student_id,
-    s.name,
-    sc.course_name,
-    sc.start_date_at,
-    sc.end_date_at
+    SELECT sc.id, sc.student_id, s.name, sc.course_name, sc.start_date_at, sc.end_date_at, sc.status
     FROM students_courses sc
     INNER JOIN students s ON s.id = sc.student_id
   </select>
@@ -75,7 +69,8 @@
     UPDATE students_courses
     SET course_name = #{courseName},
     start_date_at = #{startDateAt},
-    end_date_at = #{endDateAt}
+    end_date_at = #{endDateAt},
+    status = #{status}
     WHERE id = #{id}
   </update>
 

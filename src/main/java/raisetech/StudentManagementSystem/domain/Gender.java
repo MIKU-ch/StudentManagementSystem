@@ -1,5 +1,8 @@
 package raisetech.StudentManagementSystem.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum Gender {
   MALE("男性"),
   FEMALE("女性"),
@@ -9,10 +12,6 @@ public enum Gender {
 
   private Gender(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 
   public static Gender fromLabel(String label) {

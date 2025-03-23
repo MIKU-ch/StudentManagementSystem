@@ -1,7 +1,6 @@
 package raisetech.StudentManagementSystem.data;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
@@ -9,6 +8,7 @@ import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
+import raisetech.StudentManagementSystem.domain.CourseStatus;
 
 @Alias("StudentsCourses")
 @Schema(description = "受講生コース情報")
@@ -26,7 +26,8 @@ public class StudentsCourses {
   @NotNull(message = "開始日は必須です")
   @PastOrPresent(message = "開始日は過去または今日の日付である必要があります")
   private LocalDate startDateAt;
-
-  @FutureOrPresent(message = "終了日は今日以降の日付を指定してください")
+  
   private LocalDate endDateAt;
+
+  private CourseStatus status;
 }
