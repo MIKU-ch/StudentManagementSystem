@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS students_courses (
     start_date_at DATE,
     end_date_at DATE,
     course_name VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
 );

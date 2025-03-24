@@ -76,8 +76,8 @@
 
   <!-- コースを追加 -->
   <insert id="insertStudentsCourses" parameterType="StudentsCourses">
-    INSERT INTO students_courses (student_id, course_name, start_date_at, end_date_at)
-    VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt});
+    INSERT INTO students_courses (student_id, course_name, start_date_at, end_date_at, status)
+    VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}, #{status})
   </insert>
 
   <!-- 受講コースIDで受講コース情報を取得 -->
