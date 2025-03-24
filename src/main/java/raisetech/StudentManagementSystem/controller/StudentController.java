@@ -191,9 +191,15 @@ public class StudentController {
   @PostMapping("/{id}/courses")
   public ResponseEntity<Map<String, Object>> addCourseForStudent(@PathVariable @Min(1) int id,
       @Valid @RequestBody StudentsCourses sc) {
+    // デフォルトでstatusを設定
+    if (sc.getStatus() == null) {
+      sc.setStatus(CourseStatus.valueOf("KARI_APPLY"));
+    }
+
     service.addCourseForStudent(id, sc);
     Map<String, Object> response = new HashMap<>();
     response.put("message", "新しいコースが追加されました。");
     return ResponseEntity.ok(response);
   }
+
 }
