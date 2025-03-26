@@ -26,8 +26,10 @@ public class StudentsCourses {
   @NotNull(message = "開始日は必須です")
   @PastOrPresent(message = "開始日は過去または今日の日付である必要があります")
   private LocalDate startDateAt;
-  
+
   private LocalDate endDateAt;
 
   private CourseStatus status;
+
+  private Integer courseStatusId;
 }

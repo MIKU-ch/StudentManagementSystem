@@ -18,15 +18,34 @@
   <!-- 特定の学生のコース情報を取得 -->
   <select id="findCoursesByStudentId"
     resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
-    SELECT * FROM students_courses WHERE student_id = #{id}
+    SELECT
+    sc.id,
+    sc.student_id,
+    sc.course_name,
+    sc.start_date_at,
+    sc.end_date_at,
+    cs.status as status,
+    sc.course_status_id
+    FROM students_courses sc
+    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    WHERE sc.student_id = #{id}
   </select>
 
   <!-- 学生とコース情報を取得（INNER JOIN） -->
   <select id="searchStudentsCourses"
     resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
-    SELECT sc.id, sc.student_id, s.name, sc.course_name, sc.start_date_at, sc.end_date_at, sc.status
+    SELECT
+    sc.id,
+    sc.student_id,
+    s.name,
+    sc.course_name,
+    sc.start_date_at,
+    sc.end_date_at,
+    cs.status as status,
+    sc.course_status_id
     FROM students_courses sc
     INNER JOIN students s ON s.id = sc.student_id
+    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
   </select>
 
   <!-- 学生情報を登録 -->
@@ -42,17 +61,18 @@
   <!-- 学生のコース情報を登録 -->
   <insert id="registerStudentsCourses" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO students_courses(
-    student_id, course_name, start_date_at, end_date_at
+    student_id, course_name, start_date_at, end_date_at, course_status_id
     )
     VALUES(
-    #{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}
+    #{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}, #{courseStatusId}
     )
   </insert>
 
   <!-- 学生情報を更新 -->
   <update id="updateStudent">
     UPDATE students
-    SET name = #{name},
+    SET
+    name = #{name},
     kana_name = #{kanaName},
     nickname = #{nickname},
     email = #{email},
@@ -67,22 +87,106 @@
   <!-- 学生のコース情報を更新（id で特定のコースのみ更新） -->
   <update id="updateStudentsCourses">
     UPDATE students_courses
-    SET course_name = #{courseName},
+    SET
+    course_name = #{courseName},
     start_date_at = #{startDateAt},
     end_date_at = #{endDateAt},
-    status = #{status}
+    course_status_id = #{courseStatusId}
     WHERE id = #{id}
   </update>
 
   <!-- コースを追加 -->
-  <insert id="insertStudentsCourses" parameterType="StudentsCourses">
-    INSERT INTO students_courses (student_id, course_name, start_date_at, end_date_at, status)
-    VALUES (#{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}, #{status})
+  <insert id="insertStudentsCourses"
+    parameterType="raisetech.StudentManagementSystem.data.StudentsCourses">
+    INSERT INTO students_courses(
+    student_id, course_name, start_date_at, end_date_at, course_status_id
+    )
+    VALUES(
+    #{studentId}, #{courseName}, #{startDateAt}, #{endDateAt}, #{courseStatusId}
+    )
   </insert>
 
   <!-- 受講コースIDで受講コース情報を取得 -->
   <select id="findCourseById" resultType="raisetech.StudentManagementSystem.data.StudentsCourses">
-    SELECT * FROM students_courses WHERE id = #{courseId}
+    SELECT
+    sc.id,
+    sc.student_id,
+    sc.course_name,
+    sc.start_date_at,
+    sc.end_date_at,
+    cs.status as status,
+    sc.course_status_id
+    FROM students_courses sc
+    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    WHERE sc.id = #{courseId}
+  </select>
+
+  <!-- 動的に学生とコース情報を検索する -->
+  <resultMap id="StudentDetailMap" type="raisetech.StudentManagementSystem.domain.StudentDetail">
+    <!-- Student のマッピング -->
+    <association property="student" javaType="raisetech.StudentManagementSystem.data.Student">
+      <id property="id" column="id"/>
+      <result property="name" column="name"/>
+      <result property="kanaName" column="kanaName"/>
+      <result property="nickname" column="nickname"/>
+      <result property="email" column="email"/>
+      <result property="region" column="region"/>
+      <result property="age" column="age"/>
+      <result property="gender" column="gender"/>
+      <result property="remark" column="remark"/>
+      <result property="isDeleted" column="is_deleted"/>
+    </association>
+    <!-- 受講コースのリストのマッピング -->
+    <collection property="courseList"
+      ofType="raisetech.StudentManagementSystem.data.StudentsCourses">
+      <id property="id" column="courseId"/>
+      <result property="studentId" column="student_id"/>
+      <result property="courseName" column="courseName"/>
+      <result property="startDateAt" column="startDateAt"/>
+      <result property="endDateAt" column="endDateAt"/>
+      <result property="status" column="status"/>
+      <result property="courseStatusId" column="courseStatusId"/>
+    </collection>
+  </resultMap>
+
+  <select id="searchStudentDetails" parameterType="map" resultMap="StudentDetailMap">
+    SELECT
+    s.id as id,
+    s.name as name,
+    s.kana_name as kanaName,
+    s.nickname as nickname,
+    s.email as email,
+    s.region as region,
+    s.age as age,
+    s.gender as gender,
+    s.remark as remark,
+    s.is_deleted as is_deleted,
+    sc.id as courseId,
+    sc.student_id as student_id,
+    sc.course_name as courseName,
+    sc.start_date_at as startDateAt,
+    sc.end_date_at as endDateAt,
+    cs.status as status,
+    sc.course_status_id as courseStatusId
+    FROM students s
+    LEFT JOIN students_courses sc ON s.id = sc.student_id
+    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    <where>
+      <if test="studentId != null">AND s.id = #{studentId}</if>
+      <if test="name != null">AND s.name LIKE CONCAT('%', #{name}, '%')</if>
+      <if test="kanaName != null">AND s.kana_name LIKE CONCAT('%', #{kanaName}, '%')</if>
+      <if test="nickname != null">AND s.nickname LIKE CONCAT('%', #{nickname}, '%')</if>
+      <if test="email != null">AND s.email LIKE CONCAT('%', #{email}, '%')</if>
+      <if test="region != null">AND s.region LIKE CONCAT('%', #{region}, '%')</if>
+      <if test="age != null">AND s.age = #{age}</if>
+      <if test="gender != null">AND s.gender = #{gender}</if>
+      <if test="remark != null">AND s.remark LIKE CONCAT('%', #{remark}, '%')</if>
+      <if test="isDeleted != null">AND s.is_deleted = #{isDeleted}</if>
+      <if test="courseId != null">AND sc.id = #{courseId}</if>
+      <if test="courseStudentId != null">AND sc.student_id = #{courseStudentId}</if>
+      <if test="courseName != null">AND sc.course_name LIKE CONCAT('%', #{courseName}, '%')</if>
+      <if test="status != null">AND cs.status = #{status}</if>
+    </where>
   </select>
 
 </mapper>

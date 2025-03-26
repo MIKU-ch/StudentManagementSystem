@@ -1,9 +1,11 @@
 package raisetech.StudentManagementSystem.repository;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
+import raisetech.StudentManagementSystem.domain.StudentDetail;
 
 @Mapper
 public interface StudentRepository {
@@ -37,4 +39,7 @@ public interface StudentRepository {
 
   // 受講コースIDで受講コース情報を取得する
   StudentsCourses findCourseById(int courseId);
+
+  // 動的に学生とコース情報を検索する（動的検索）
+  List<StudentDetail> searchStudentDetails(Map<String, Object> params);
 }

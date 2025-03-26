@@ -2,6 +2,7 @@ package raisetech.StudentManagementSystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,7 @@ public class StudentService {
   }
 
   /**
-   * 学生情報（受講コース情報含む）を取得する。
+   * 学生情報（受講コース情報含む）を取得する。 ※現状は全件取得してからJava側で結合している
    *
    * @return 学生詳細情報のリスト
    */
@@ -51,6 +52,16 @@ public class StudentService {
     List<StudentsCourses> studentsCourses = searchStudentsCourseList();
     List<Student> students = searchStudentList();
     return converter.convertToStudentDetailList(students, studentsCourses);
+  }
+
+  /**
+   * 検索条件に基づいて、DB側で動的に学生情報（受講コース情報含む）を検索する。
+   *
+   * @param params 検索条件を含むMap（例："name", "region", "status" など）
+   * @return 条件に合致する学生詳細情報のリスト
+   */
+  public List<StudentDetail> searchStudentDetails(Map<String, Object> params) {
+    return repository.searchStudentDetails(params);
   }
 
   /**
@@ -96,14 +107,17 @@ public class StudentService {
     if (studentDetail.getCourseList() != null) {
       for (StudentsCourses sc : studentDetail.getCourseList()) {
         sc.setStudentId(studentId);
+        // デフォルトでcourse_status_idを設定（KARI_APPLYに対応するID、ここでは1と仮定）
+        if (sc.getCourseStatusId() == null) {
+          sc.setCourseStatusId(1);
+        }
         repository.registerStudentsCourses(sc);
       }
     }
   }
 
   /**
-   * 学生の基本情報を更新する。 指定された学生IDに対応する学生情報が存在するかをチェックし、 存在する場合は基本情報を更新する。
-   * リクエストボディにはIDが含まれないため、URLから受け取ったIDを設定する。
+   * 学生の基本情報を更新する。 指定された学生IDに対応する学生情報が存在するかチェックし、存在する場合は更新する。
    *
    * @param student 更新する学生の基本情報（IDはURLから設定される）
    * @throws CustomAppException 更新対象の学生が存在しない場合にスローされる
@@ -116,34 +130,30 @@ public class StudentService {
   }
 
   /**
-   * 受講コース情報を更新する。 URLから受け取った学生IDと、更新対象のコースIDに基づいて、対象コース情報が存在するかを確認し、 その受講コース情報を更新する。
+   * 受講コース情報を更新する。 URLから取得した学生IDと、更新対象のコースIDに基づき、対象コース情報の整合性をチェックして更新する。
    *
    * @param studentId URLから取得した学生ID
-   * @param course    更新する受講コース情報。リクエストボディにはIDが含まれないため、URLのcourseIdをセットする。
-   * @throws CustomAppException 更新対象のコースが存在しない、またはURLの学生IDと更新対象コースの学生IDが一致しない場合にスローされる
+   * @param course    更新する受講コース情報（IDはリクエストボディに含めない）
+   * @throws CustomAppException 更新対象のコースが存在しない、または整合性に問題がある場合にスローされる
    */
   @Transactional
   public void updateStudentCourse(int studentId, StudentsCourses course) {
-    // まず、更新対象のコース情報をDBから取得
     StudentsCourses existingCourse = repository.findCourseById(course.getId());
     if (existingCourse == null) {
       throw new CustomAppException("更新対象のコースが存在しません");
     }
-    // URLの学生IDと、取得したコース情報の学生IDが一致するかチェック
     if (!existingCourse.getStudentId().equals(studentId)) {
       throw new CustomAppException("URL の学生IDと、更新対象のコースの学生IDが一致しません");
     }
-    // 整合性が確認できたら更新処理を実行
     repository.updateStudentsCourses(course);
   }
 
   /**
-   * 学生に新しい受講コース情報を追加する。 指定された学生IDの学生が存在するかをチェックし、受講コースの追加可能件数（最大3件）や
-   * 開始日・終了日の条件を検証した上で、新しいコース情報を登録する。
+   * 学生に新しい受講コース情報を追加する。 指定された学生IDの学生が存在するかチェックし、受講コースの追加可能件数（最大3件）や開始日・終了日の条件を検証した上で登録する。
    *
    * @param studentId 更新対象の学生ID
    * @param sc        追加する受講コース情報（IDはリクエストボディに含めない）
-   * @throws CustomAppException 受講生が存在しない、または既存のコース数が最大件数に達している場合、または開始日条件に合致しない場合にスローされる
+   * @throws CustomAppException 受講生が存在しない、またはコース追加条件に合致しない場合にスローされる
    */
   @Transactional
   public void addCourseForStudent(int studentId, StudentsCourses sc) {
@@ -165,6 +175,10 @@ public class StudentService {
       }
     }
     sc.setStudentId(studentId);
+    // デフォルトの course_status_id を設定（KARI_APPLYに対応するID、ここでは1と仮定）
+    if (sc.getCourseStatusId() == null) {
+      sc.setCourseStatusId(1);
+    }
     repository.insertStudentsCourses(sc);
   }
 }

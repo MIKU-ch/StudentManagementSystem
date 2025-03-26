@@ -9,8 +9,6 @@ import jakarta.validation.constraints.Min;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +39,7 @@ public class StudentController {
     this.service = service;
   }
 
-  @Operation(summary = "一覧検索", description = "指定された条件で受講生情報（受講コース情報含む）を検索する")
+  @Operation(summary = "一覧検索", description = "指定された条件で受講生情報（受講コース情報含む）をDB側で絞り込み検索する")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "条件に一致する学生情報のリストが返される")
   })
@@ -64,50 +62,30 @@ public class StudentController {
       @RequestParam(required = false) String courseName,
       @RequestParam(required = false) CourseStatus status
   ) {
-    List<StudentDetail> students = service.listStudentDetails();
+    // リクエストパラメータをMapに格納
+    Map<String, Object> params = new HashMap<>();
+    params.put("studentId", studentId);
+    params.put("name", name);
+    params.put("kanaName", kanaName);
+    params.put("nickname", nickname);
+    params.put("email", email);
+    params.put("region", region);
+    params.put("age", age);
+    params.put("gender", gender);
+    params.put("remark", remark);
+    params.put("isDeleted", isDeleted);
+    params.put("courseId", courseId);
+    params.put("courseStudentId", courseStudentId);
+    params.put("courseName", courseName);
+    params.put("status", status);
 
-    List<StudentDetail> filteredStudents = students.stream()
-        // 学生側のフィルタリング
-        .filter(detail -> name == null || detail.getStudent().getName().contains(name))
-        .filter(detail -> kanaName == null || detail.getStudent().getKanaName().contains(kanaName))
-        .filter(detail -> nickname == null || detail.getStudent().getNickname().contains(nickname))
-        .filter(detail -> email == null || detail.getStudent().getEmail().contains(email))
-        .filter(detail -> region == null || detail.getStudent().getRegion().contains(region))
-        .filter(detail -> age == null || Objects.equals(detail.getStudent().getAge(), age))
-        .filter(detail -> gender == null || detail.getStudent().getGender() == gender)
-        .filter(detail -> remark == null || detail.getStudent().getRemark().contains(remark))
-        .filter(detail -> isDeleted == null || detail.getStudent().getIsDeleted() == isDeleted)
-        // コース側のフィルタリング
-        .filter(detail -> {
-          // コース条件が一つも指定されていなければすべて通過
-          if (courseId == null && courseStudentId == null && courseName == null && status == null) {
-            return true;
-          }
-          // 指定されたコース条件を満たすコースが1件でもあればOK
-          return detail.getCourseList().stream().anyMatch(course -> {
-            boolean matches = true;
-            if (courseId != null) {
-              matches = matches && course.getId().equals(courseId);
-            }
-            if (courseStudentId != null) {
-              matches = matches && course.getStudentId().equals(courseStudentId);
-            }
-            if (courseName != null) {
-              matches = matches && course.getCourseName().contains(courseName);
-            }
-            if (status != null) {
-              matches = matches && course.getStatus() == status;
-            }
-            return matches;
-          });
-        })
-        .collect(Collectors.toList());
+    // DB側で条件に合わせた動的検索を実施する
+    List<StudentDetail> students = service.searchStudentDetails(params);
 
     Map<String, Object> response = new HashMap<>();
-    response.put("students", filteredStudents);
+    response.put("students", students);
     return ResponseEntity.ok(response);
   }
-
 
   @Operation(summary = "受講生登録", description = "新規の受講生を登録する")
   @ApiResponses(value = {
@@ -170,6 +148,7 @@ public class StudentController {
     // URLのcourseIdとstudentIdを設定。BodyにはIDは含めない。
     course.setId(courseId);
     course.setStudentId(studentId);
+    // ここでは、リクエストボディで courseStatusId が渡されている前提
 
     Map<String, Object> response = new HashMap<>();
 
@@ -189,17 +168,16 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PostMapping("/{id}/courses")
-  public ResponseEntity<Map<String, Object>> addCourseForStudent(@PathVariable @Min(1) int id,
+  public ResponseEntity<Map<String, Object>> addCourseForStudent(
+      @PathVariable @Min(1) int id,
       @Valid @RequestBody StudentsCourses sc) {
-    // デフォルトでstatusを設定
-    if (sc.getStatus() == null) {
-      sc.setStatus(CourseStatus.valueOf("KARI_APPLY"));
+    // デフォルトで courseStatusId を設定（nullの場合、仮申込：KARI_APPLY に対応するID、ここでは1と仮定）
+    if (sc.getCourseStatusId() == null) {
+      sc.setCourseStatusId(1);
     }
-
     service.addCourseForStudent(id, sc);
     Map<String, Object> response = new HashMap<>();
     response.put("message", "新しいコースが追加されました。");
     return ResponseEntity.ok(response);
   }
-
 }
