@@ -11,12 +11,18 @@ CREATE TABLE IF NOT EXISTS students (
     is_deleted TINYINT DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS course_status (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    status VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS students_courses (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     student_id INT,
     start_date_at DATE,
     end_date_at DATE,
     course_name VARCHAR(255) NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL
+    course_status_id INT,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE SET NULL,
+    FOREIGN KEY (course_status_id) REFERENCES course_status(id)
 );

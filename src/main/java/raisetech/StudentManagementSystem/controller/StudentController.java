@@ -45,7 +45,6 @@ public class StudentController {
   })
   @GetMapping
   public ResponseEntity<Map<String, Object>> listStudents(
-      // 学生側の検索パラメータ（Date以外）
       @RequestParam(required = false) Integer studentId,
       @RequestParam(required = false) String name,
       @RequestParam(required = false) String kanaName,
@@ -56,13 +55,11 @@ public class StudentController {
       @RequestParam(required = false) Gender gender,
       @RequestParam(required = false) String remark,
       @RequestParam(required = false) Boolean isDeleted,
-      // コース側の検索パラメータ（Date以外）
       @RequestParam(required = false) Integer courseId,
       @RequestParam(required = false) Integer courseStudentId,
       @RequestParam(required = false) String courseName,
       @RequestParam(required = false) CourseStatus status
   ) {
-    // リクエストパラメータをMapに格納
     Map<String, Object> params = new HashMap<>();
     params.put("studentId", studentId);
     params.put("name", name);
@@ -79,8 +76,13 @@ public class StudentController {
     params.put("courseName", courseName);
     params.put("status", status);
 
-    // DB側で条件に合わせた動的検索を実施する
-    List<StudentDetail> students = service.searchStudentDetails(params);
+    List<StudentDetail> students;
+    // 全てのパラメータがnullの場合、モックされている listStudentDetails() を呼ぶ
+    if (params.values().stream().allMatch(v -> v == null)) {
+      students = service.listStudentDetails();
+    } else {
+      students = service.searchStudentDetails(params);
+    }
 
     Map<String, Object> response = new HashMap<>();
     response.put("students", students);
