@@ -25,6 +25,10 @@ import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.CourseStatus;
 import raisetech.StudentManagementSystem.domain.Gender;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
+import raisetech.StudentManagementSystem.dto.MessageResponseDTO;
+import raisetech.StudentManagementSystem.dto.StudentDetailResponseDTO;
+import raisetech.StudentManagementSystem.dto.StudentListResponseDTO;
+import raisetech.StudentManagementSystem.dto.StudentRegisterResponseDTO;
 import raisetech.StudentManagementSystem.service.StudentService;
 
 @Validated
@@ -44,7 +48,7 @@ public class StudentController {
       @ApiResponse(responseCode = "200", description = "条件に一致する学生情報のリストが返される")
   })
   @GetMapping
-  public ResponseEntity<Map<String, Object>> listStudents(
+  public ResponseEntity<StudentListResponseDTO> listStudents(
       @RequestParam(required = false) Integer studentId,
       @RequestParam(required = false) String name,
       @RequestParam(required = false) String kanaName,
@@ -84,8 +88,7 @@ public class StudentController {
       students = service.searchStudentDetails(params);
     }
 
-    Map<String, Object> response = new HashMap<>();
-    response.put("students", students);
+    StudentListResponseDTO response = new StudentListResponseDTO(students);
     return ResponseEntity.ok(response);
   }
 
@@ -95,13 +98,11 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PostMapping
-  public ResponseEntity<Map<String, Object>> registerStudent(
+  public ResponseEntity<StudentRegisterResponseDTO> registerStudent(
       @Valid @RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
-    Map<String, Object> response = new HashMap<>();
-    response.put("message",
-        studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
-    response.put("studentDetail", studentDetail);
+    String message = studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。";
+    StudentRegisterResponseDTO response = new StudentRegisterResponseDTO(message, studentDetail);
     return ResponseEntity.ok(response);
   }
 
@@ -111,10 +112,9 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力されたIDが無効")
   })
   @GetMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> getStudentDetail(@PathVariable @Min(1) int id) {
+  public ResponseEntity<StudentDetailResponseDTO> getStudentDetail(@PathVariable @Min(1) int id) {
     StudentDetail studentDetail = service.getStudentDetailById(id);
-    Map<String, Object> response = new HashMap<>();
-    response.put("studentDetail", studentDetail);
+    StudentDetailResponseDTO response = new StudentDetailResponseDTO(studentDetail);
     return ResponseEntity.ok(response);
   }
 
@@ -124,14 +124,12 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PutMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> updateStudentBasicInfo(
+  public ResponseEntity<MessageResponseDTO> updateStudentBasicInfo(
       @PathVariable int id,
       @RequestBody @Valid Student student) {
-    // URLのIDを受け取って、リクエストボディの学生情報にセットする
     student.setId(id);
     service.updateStudentBasicInfo(student);
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "学生基本情報を更新しました");
+    MessageResponseDTO response = new MessageResponseDTO("学生基本情報を更新しました");
     return ResponseEntity.ok(response);
   }
 
@@ -142,24 +140,20 @@ public class StudentController {
       @ApiResponse(responseCode = "500", description = "サーバーエラー")
   })
   @PutMapping("/{studentId}/courses/{courseId}")
-  public ResponseEntity<Map<String, Object>> updateStudentCourse(
+  public ResponseEntity<MessageResponseDTO> updateStudentCourse(
       @PathVariable int studentId,
       @PathVariable int courseId,
       @RequestBody @Valid StudentsCourses course) {
 
-    // URLのcourseIdとstudentIdを設定。BodyにはIDは含めない。
     course.setId(courseId);
     course.setStudentId(studentId);
-    // ここでは、リクエストボディで courseStatusId が渡されている前提
-
-    Map<String, Object> response = new HashMap<>();
 
     try {
       service.updateStudentCourse(studentId, course);
-      response.put("message", "受講コース情報を更新しました");
+      MessageResponseDTO response = new MessageResponseDTO("受講コース情報を更新しました");
       return ResponseEntity.ok(response);
     } catch (Exception e) {
-      response.put("message", "更新に失敗しました: " + e.getMessage());
+      MessageResponseDTO response = new MessageResponseDTO("更新に失敗しました: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
   }
@@ -170,16 +164,14 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "入力エラー")
   })
   @PostMapping("/{id}/courses")
-  public ResponseEntity<Map<String, Object>> addCourseForStudent(
+  public ResponseEntity<MessageResponseDTO> addCourseForStudent(
       @PathVariable @Min(1) int id,
       @Valid @RequestBody StudentsCourses sc) {
-    // デフォルトで courseStatusId を設定（nullの場合、仮申込：KARI_APPLY に対応するID、ここでは1と仮定）
     if (sc.getCourseStatusId() == null) {
       sc.setCourseStatusId(1);
     }
     service.addCourseForStudent(id, sc);
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "新しいコースが追加されました。");
+    MessageResponseDTO response = new MessageResponseDTO("新しいコースが追加されました。");
     return ResponseEntity.ok(response);
   }
 }
