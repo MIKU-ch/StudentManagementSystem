@@ -27,7 +27,7 @@
     cs.status as status,
     sc.course_status_id
     FROM students_courses sc
-    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    INNER JOIN course_status cs ON sc.course_status_id = cs.id
     WHERE sc.student_id = #{id}
   </select>
 
@@ -45,7 +45,7 @@
     sc.course_status_id
     FROM students_courses sc
     INNER JOIN students s ON s.id = sc.student_id
-    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    INNER JOIN course_status cs ON sc.course_status_id = cs.id
   </select>
 
   <!-- 学生情報を登録 -->
@@ -117,7 +117,7 @@
     cs.status as status,
     sc.course_status_id
     FROM students_courses sc
-    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    INNER JOIN course_status cs ON sc.course_status_id = cs.id
     WHERE sc.id = #{courseId}
   </select>
 
@@ -149,7 +149,10 @@
     </collection>
   </resultMap>
 
-  <select id="searchStudentDetails" parameterType="map" resultMap="StudentDetailMap">
+  <!-- 動的に学生とコース情報を検索する -->
+  <select id="searchStudentDetails"
+    parameterType="raisetech.StudentManagementSystem.dto.StudentSearchCriteria"
+    resultMap="StudentDetailMap">
     SELECT
     s.id as id,
     s.name as name,
@@ -169,8 +172,8 @@
     cs.status as status,
     sc.course_status_id as courseStatusId
     FROM students s
-    LEFT JOIN students_courses sc ON s.id = sc.student_id
-    LEFT JOIN course_status cs ON sc.course_status_id = cs.id
+    INNER JOIN students_courses sc ON s.id = sc.student_id
+    INNER JOIN course_status cs ON sc.course_status_id = cs.id
     <where>
       <if test="studentId != null">AND s.id = #{studentId}</if>
       <if test="name != null">AND s.name LIKE CONCAT('%', #{name}, '%')</if>

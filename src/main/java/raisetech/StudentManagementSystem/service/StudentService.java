@@ -2,7 +2,6 @@ package raisetech.StudentManagementSystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +9,7 @@ import raisetech.StudentManagementSystem.controller.converter.StudentConverter;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
 import raisetech.StudentManagementSystem.domain.StudentDetail;
+import raisetech.StudentManagementSystem.dto.StudentSearchCriteria;
 import raisetech.StudentManagementSystem.exception.CustomAppException;
 import raisetech.StudentManagementSystem.repository.StudentRepository;
 
@@ -57,11 +57,11 @@ public class StudentService {
   /**
    * 検索条件に基づいて、DB側で動的に学生情報（受講コース情報含む）を検索する。
    *
-   * @param params 検索条件を含むMap（例："name", "region", "status" など）
+   * @param criteria 検索条件オブジェクト（例：name, region, status など）
    * @return 条件に合致する学生詳細情報のリスト
    */
-  public List<StudentDetail> searchStudentDetails(Map<String, Object> params) {
-    return repository.searchStudentDetails(params);
+  public List<StudentDetail> searchStudentDetails(StudentSearchCriteria criteria) {
+    return repository.searchStudentDetails(criteria);
   }
 
   /**
