@@ -9,7 +9,6 @@ import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import raisetech.StudentManagementSystem.data.Student;
 import raisetech.StudentManagementSystem.data.StudentsCourses;
-import raisetech.StudentManagementSystem.domain.CourseStatus;
 import raisetech.StudentManagementSystem.domain.Gender;
 
 @MybatisTest
@@ -95,7 +94,8 @@ public class StudentRepositoryTest {
     course.setCourseName("Test Course");
     course.setStartDateAt(LocalDate.of(2025, 1, 1));
     course.setEndDateAt(LocalDate.of(2025, 12, 31));
-    course.setStatus(CourseStatus.valueOf("ENROLLING"));
+    // 直接 courseStatusId を設定（course_status テーブルで 'ENROLLING' が ID=3）
+    course.setCourseStatusId(3);
 
     // コースを追加
     sut.insertStudentsCourses(course);

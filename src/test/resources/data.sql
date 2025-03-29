@@ -6,12 +6,12 @@ INSERT INTO students (name, kana_name, nickname, age, email, region, remark, gen
 ('池江 璃花子', 'いけえ りかこ', 'Rika', 24, 'rikako.ikee@example.com', '東京', '将来は海外へ行きたい', 'MALE', 0),
 ('井上 花月', 'いのうえ かづき', 'はなちゃん', 25, 'rikako.inoue@example.com', '北海道', '花嫁', 'FEMALE', 0);
 
--- コースステータステーブルの初期登録
-INSERT INTO course_status (status) VALUES
-('KARI_APPLY'),
-('HON_APPLY'),
-('ENROLLING'),
-('FINISHED');
+-- コースステータステーブルの初期登録（IDを明示的に指定）
+INSERT INTO course_status (id, status) VALUES
+(1, 'KARI_APPLY'),
+(2, 'HON_APPLY'),
+(3, 'ENROLLING'),
+(4, 'FINISHED');
 
 -- コースデータの初期登録
 -- 各コースに対して、対応する student_id と course_status_id を指定
