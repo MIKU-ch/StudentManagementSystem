@@ -6,7 +6,7 @@ on:
 
 env:
   EC2_USER: 'ec2-user'
-  EC2_HOST: '35.72.14.92'
+  EC2_HOST: '54.250.38.218'
   SRC_PATH: 'build/libs/*.jar'
   DEST_PATH: '/home/ec2-user/StudentManagementSystem.jar'
 
@@ -45,6 +45,7 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           scp -o StrictHostKeyChecking=no -i private_key $SRC_PATH $EC2_USER@$EC2_HOST:$DEST_PATH
+          rm -f private_key
 
       - name: SSH Application Deploy
         uses: appleboy/ssh-action@master
@@ -65,7 +66,7 @@ jobs:
             [Service]
             ExecStart = java -jar ${DEST_PATH}
             EnvironmentFile = /etc/sysconfig/StudentManagement
-            Restart = no
+            Restart = on-failure
             Type = simple
             User = ec2-user
             Group = ec2-user
